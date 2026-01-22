@@ -11,6 +11,15 @@ export const current = query({
     }
 
     const user = await ctx.db.get(userId);
-    return user;
+    if (!user) {
+      return null;
+    }
+
+    // Return user with explicit fields including username
+    return {
+      _id: user._id,
+      email: user.email,
+      username: user.username,
+    };
   },
 });

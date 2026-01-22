@@ -5,8 +5,13 @@ import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
+import { VetoConsole } from "@/components/veto/VetoConsole";
 import Link from "next/link";
 import { useState, use } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   const veto = useQuery(api.vetos.getAsAdmin, { vetoId });
@@ -20,7 +25,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   if (veto === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-zinc-400">Loading...</div>
+        <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -28,7 +33,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   if (veto === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-400">Veto not found</div>
+        <div className="text-destructive">Veto not found</div>
       </div>
     );
   }
@@ -59,127 +64,129 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
 
   return (
     <div className="min-h-screen p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <Link
-            href="/admin"
-            className="text-zinc-400 hover:text-white transition-colors text-sm"
-          >
-            ← Back to dashboard
-          </Link>
-        </div>
+      <div className="max-w-6xl mx-auto">
+        {/* Top row: Share Links + Console side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Captain Links */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Share these links with team captains
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Team A */}
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    "w-32 text-sm truncate",
+                    veto.teamAConnected ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  {veto.teamA.name} {veto.teamAConnected && "✓"}
+                </span>
+                <Input
+                  readOnly
+                  value={teamALink}
+                  className="flex-1 min-w-0"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyLink("teamA")}
+                >
+                  {copiedTeam === "teamA" ? "Copied!" : "Copy"}
+                </Button>
+              </div>
 
-        {/* Captain Links */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 mb-6">
-          <h3 className="text-sm font-medium text-zinc-400 mb-4">
-            Share these links with team captains
-          </h3>
-          <div className="space-y-3">
-            {/* Team A */}
-            <div className="flex items-center gap-3">
-              <span
-                className={`w-32 text-sm ${
-                  veto.teamAConnected ? "text-green-400" : "text-zinc-400"
-                }`}
-              >
-                {veto.teamA.name} {veto.teamAConnected && "✓"}
-              </span>
-              <input
-                readOnly
-                value={teamALink}
-                className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-300"
-              />
-              <button
-                onClick={() => copyLink("teamA")}
-                className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded hover:bg-zinc-700 transition-colors text-sm"
-              >
-                {copiedTeam === "teamA" ? "Copied!" : "Copy"}
-              </button>
-            </div>
+              {/* Team B */}
+              <div className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    "w-32 text-sm truncate",
+                    veto.teamBConnected ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  {veto.teamB.name} {veto.teamBConnected && "✓"}
+                </span>
+                <Input
+                  readOnly
+                  value={teamBLink}
+                  className="flex-1 min-w-0"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyLink("teamB")}
+                >
+                  {copiedTeam === "teamB" ? "Copied!" : "Copy"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Team B */}
-            <div className="flex items-center gap-3">
-              <span
-                className={`w-32 text-sm ${
-                  veto.teamBConnected ? "text-green-400" : "text-zinc-400"
-                }`}
-              >
-                {veto.teamB.name} {veto.teamBConnected && "✓"}
-              </span>
-              <input
-                readOnly
-                value={teamBLink}
-                className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-sm text-zinc-300"
-              />
-              <button
-                onClick={() => copyLink("teamB")}
-                className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded hover:bg-zinc-700 transition-colors text-sm"
-              >
-                {copiedTeam === "teamB" ? "Copied!" : "Copy"}
-              </button>
-            </div>
-          </div>
+          {/* Console */}
+          <VetoConsole veto={veto} className="h-full" />
         </div>
 
         {/* Admin Controls */}
         {veto.status === "waiting" && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 mb-6">
-            <h3 className="text-sm font-medium text-zinc-400 mb-4">
-              Start the veto - select who bans first
-            </h3>
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleStart("teamA")}
-                className="flex-1 py-3 bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors"
-              >
-                {veto.teamA.name} first
-              </button>
-              <button
-                onClick={() => handleStart("teamB")}
-                className="flex-1 py-3 bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors"
-              >
-                {veto.teamB.name} first
-              </button>
-            </div>
-          </div>
+          <Card className="mb-6">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Start the veto - select who bans first
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => handleStart("teamA")}
+                  className="flex-1"
+                >
+                  {veto.teamA.name} first
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleStart("teamB")}
+                  className="flex-1"
+                >
+                  {veto.teamB.name} first
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Veto Display */}
-        <VetoDisplay veto={veto} userTeam="admin" showConsole={true} />
+        <VetoDisplay veto={veto} userTeam="admin" />
 
         {/* Admin Actions */}
         <div className="mt-8 flex gap-3 justify-end">
           {veto.status !== "waiting" && (
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
-            >
+            <Button variant="outline" onClick={handleReset}>
               Reset Veto
-            </button>
+            </Button>
           )}
           {!showDeleteConfirm ? (
-            <button
+            <Button
+              variant="destructive"
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-500/20 border border-red-500/40 rounded-lg hover:bg-red-500/30 transition-colors text-sm text-red-400"
             >
               Delete
-            </button>
+            </Button>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-400">Are you sure?</span>
-              <button
+              <span className="text-sm text-muted-foreground">Are you sure?</span>
+              <Button
+                variant="destructive"
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors text-sm text-white"
               >
                 Yes, delete
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors text-sm"
-              >
+              </Button>
+              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
                 Cancel
-              </button>
+              </Button>
             </div>
           )}
         </div>

@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { useEffect, use } from "react";
+import { Badge } from "@/components/ui/badge";
 
 export default function CaptainVetoPage({
   params,
@@ -29,7 +30,7 @@ export default function CaptainVetoPage({
   if (data === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-zinc-400">Loading...</div>
+        <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -39,8 +40,8 @@ export default function CaptainVetoPage({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-400 text-xl mb-2">Invalid Link</div>
-          <div className="text-zinc-500">
+          <div className="text-destructive text-xl mb-2">Invalid Link</div>
+          <div className="text-muted-foreground">
             This veto link is invalid or has expired.
           </div>
         </div>
@@ -78,10 +79,10 @@ export default function CaptainVetoPage({
       <div className="max-w-4xl mx-auto">
         {/* Team indicator */}
         <div className="mb-6 text-center">
-          <div className="inline-block px-4 py-2 bg-zinc-800 rounded-lg">
-            <span className="text-zinc-400 text-sm">You are captain of</span>
-            <span className="ml-2 font-semibold">{myTeamName}</span>
-          </div>
+          <Badge variant="secondary" className="px-4 py-2 text-sm">
+            <span className="text-muted-foreground">You are captain of</span>
+            <span className="ml-2 font-semibold text-foreground">{myTeamName}</span>
+          </Badge>
         </div>
 
         {/* Veto Display */}

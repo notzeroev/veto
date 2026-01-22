@@ -2,6 +2,10 @@
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function SignInForm() {
   const { signIn } = useAuthActions();
@@ -28,67 +32,90 @@ export function SignInForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {isSignUp ? "Create Account" : "Sign In"}
-        </h2>
+      <Card>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">
+            {isSignUp ? "Create Account" : "Sign In"}
+          </CardTitle>
+        </CardHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20"
-              placeholder="••••••••"
-            />
-          </div>
-
-          {error && (
-            <div className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-lg">
-              {error}
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                required
+                minLength={3}
+                maxLength={20}
+                pattern="^[a-zA-Z0-9_]+$"
+                placeholder="your_username"
+                className="h-10"
+              />
+              {isSignUp && (
+                <p className="text-xs text-muted-foreground">
+                  3-20 characters, letters, numbers, and underscores only
+                </p>
+              )}
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
-          </button>
-        </form>
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  className="h-10"
+                />
+              </div>
+            )}
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-zinc-400 hover:text-white transition-colors text-sm"
-          >
-            {isSignUp
-              ? "Already have an account? Sign in"
-              : "Don't have an account? Sign up"}
-          </button>
-        </div>
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                placeholder="••••••••"
+                className="h-10"
+              />
+            </div>
+
+            {error && (
+              <div className="text-destructive text-sm bg-destructive/10 px-4 py-2 border border-destructive/20">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-10"
+            >
+              {loading ? "Loading..." : isSignUp ? "Create Account" : "Sign In"}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <Button
+              variant="link"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-muted-foreground"
+            >
+              {isSignUp
+                ? "Already have an account? Sign in"
+                : "Don't have an account? Sign up"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

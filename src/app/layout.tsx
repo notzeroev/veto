@@ -1,11 +1,15 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import { ConvexClientProvider } from "@/utils/convex/ConvexClientProvider";
-import Link from "next/link";
+import { Header } from "@/components/layout/Header";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"] });
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "vet0",
@@ -18,16 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-black text-white min-h-screen`}>
+    <html lang="en" className={cn("dark", jetbrainsMono.variable)}>
+      <body className="min-h-screen bg-background text-foreground">
         <ConvexClientProvider>
-          <header className="border-b border-zinc-800 px-6 py-4">
-            <div className="container mx-auto flex items-center justify-between">
-              <Link href="/" className="text-xl font-bold hover:text-zinc-300 transition-colors">
-                vet0
-              </Link>
-            </div>
-          </header>
+          <Header />
           <main>{children}</main>
         </ConvexClientProvider>
       </body>

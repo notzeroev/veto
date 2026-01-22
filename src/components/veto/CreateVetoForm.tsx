@@ -4,6 +4,10 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_MAPS = [
   "Ascent",
@@ -65,98 +69,96 @@ export function CreateVetoForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-      <div>
-        <label className="block text-sm font-medium mb-2">Match Name</label>
-        <input
+      <div className="space-y-2">
+        <Label>Match Name</Label>
+        <Input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          placeholder="e.g., Grand Finals - Team A vs Team B"
-          className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20"
+          placeholder="e.g. Upper Finals"
+          className="h-10"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Format</label>
+      <div className="space-y-2">
+        <Label>Format</Label>
         <div className="flex gap-3">
           {(["bo1", "bo3", "bo5"] as const).map((f) => (
-            <button
+            <Button
               key={f}
               type="button"
+              variant={format === f ? "default" : "outline"}
               onClick={() => setFormat(f)}
-              className={`flex-1 py-3 rounded-lg border transition-colors ${
-                format === f
-                  ? "bg-white text-black border-white"
-                  : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
-              }`}
+              className="flex-1"
             >
               {f.toUpperCase()}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Team A</label>
-          <input
+        <div className="space-y-2">
+          <Label>Team A</Label>
+          <Input
             type="text"
             value={teamAName}
             onChange={(e) => setTeamAName(e.target.value)}
             required
             placeholder="Team name"
-            className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20"
+            className="h-10"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Team B</label>
-          <input
+        <div className="space-y-2">
+          <Label>Team B</Label>
+          <Input
             type="text"
             value={teamBName}
             onChange={(e) => setTeamBName(e.target.value)}
             required
             placeholder="Team name"
-            className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20"
+            className="h-10"
           />
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
+      <div className="space-y-2">
+        <Label>
           Map Pool ({selectedMaps.length} selected, minimum 7)
-        </label>
+        </Label>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           {DEFAULT_MAPS.map((map) => (
-            <button
+            <Button
               key={map}
               type="button"
+              variant="outline"
               onClick={() => toggleMap(map)}
-              className={`py-2 px-3 rounded-lg border transition-colors text-sm ${
-                selectedMaps.includes(map)
-                  ? "bg-green-500/20 border-green-500/40 text-green-400"
-                  : "bg-zinc-800 border-zinc-700 hover:border-zinc-600"
-              }`}
+              className={cn(
+                "text-sm",
+                selectedMaps.includes(map) &&
+                  "bg-primary/10 border-primary/40 text-primary hover:bg-primary/20"
+              )}
             >
               {map}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       {error && (
-        <div className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-lg">
+        <div className="text-destructive text-sm bg-destructive/10 px-4 py-2 border border-destructive/20">
           {error}
         </div>
       )}
 
-      <button
+      <Button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full h-10"
       >
         {loading ? "Creating..." : "Create Veto"}
-      </button>
+      </Button>
     </form>
   );
 }
