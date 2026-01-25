@@ -1,9 +1,7 @@
 "use client";
 
 import { Doc } from "../../../convex/_generated/dataModel";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 // Type for action (used in both admin and captain views)
@@ -36,14 +34,12 @@ type Props = {
   veto: SanitizedVeto | Doc<"vetos">;
   userTeam?: "teamA" | "teamB" | "admin" | "spectator";
   onMapClick?: (map: string) => void;
-  onSideSelect?: (side: "attack" | "defense") => void;
 };
 
 export function VetoDisplay({
   veto,
   userTeam,
   onMapClick,
-  onSideSelect,
 }: Props) {
   // Get used maps (ban, pick, decider - not side_select)
   const usedMaps = veto.actions
@@ -68,11 +64,6 @@ export function VetoDisplay({
     return "Decider";
   };
 
-  // Get picked maps for summary (picks and decider with their side selections)
-  const pickedMaps = veto.actions.filter(
-    (a) => a.type === "pick" || a.type === "decider"
-  );
-
   // Get the side selection for a map
   const getSideSelection = (map: string) => {
     return veto.actions.find((a) => a.type === "side_select" && a.map === map);
@@ -86,158 +77,74 @@ export function VetoDisplay({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Current Turn Indicator */}
-      {veto.status === "in_progress" && veto.currentTurn && veto.currentPhase && (
-        <div
-          className={cn(
-            "text-center py-3 px-4 border",
-            isMyTurn
-              ? "bg-primary/10 border-primary/40"
-              : "bg-muted/50 border-border"
-          )}
-        >
-          <span className="font-medium">
-            {veto.currentTurn === "teamA" ? teamAName : teamBName}
-          </span>
-          <span className="text-muted-foreground ml-2">
-            {veto.currentPhase === "ban" && "must ban a map"}
-            {veto.currentPhase === "pick" && "must pick a map"}
-            {veto.currentPhase === "side_select" && "must select starting side"}
-          </span>
-          {isMyTurn && (
-            <div className="text-primary text-sm mt-1">
-              It&apos;s your turn!
-            </div>
-          )}
-        </div>
-      )}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {veto.mapPool.map((map) => {
+        const action = getMapAction(map);
+        const sideSelection = getSideSelection(map);
+        const isBanned = action?.type === "ban";
+        const isPicked = action?.type === "pick";
+        const isDecider = action?.type === "decider";
+        const isAvailable = availableMaps.includes(map);
 
-      {/* Side Selection UI */}
-      {veto.currentPhase === "side_select" && canAct && onSideSelect && (
-        <Card>
-          <CardContent className="pt-4">
-            <h3 className="text-center font-medium mb-4">
-              Choose your side
-              {veto.pendingSideSelectionMap && (
-                <span className="text-muted-foreground ml-2">
-                  on {veto.pendingSideSelectionMap}
-                </span>
+        const canClick =
+          canAct &&
+          isAvailable &&
+          (veto.currentPhase === "ban" || veto.currentPhase === "pick");
+
+        return (
+          <button
+            key={map}
+            onClick={() => canClick && onMapClick?.(map)}
+            disabled={!canClick}
+            className={cn(
+              "relative flex flex-col justify-between p-4 border transition-all text-left h-20 overflow-hidden",
+              isBanned && "bg-destructive/20 border-destructive opacity-60",
+              isPicked && "bg-constructive/20 border-constructive",
+              isDecider && "bg-yellow-500/20 border-yellow-500",
+              !isBanned && !isPicked && !isDecider && isAvailable && canClick &&
+                "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/30 cursor-pointer",
+              !isBanned && !isPicked && !isDecider && (!isAvailable || !canClick) &&
+                "bg-card border-border",
+              !canClick && "cursor-default"
+            )}
+          >
+            {/* Background image layer */}
+            <div
+              className="absolute inset-0 bg-cover bg-top opacity-15 grayscale pointer-events-none"
+              style={{ backgroundImage: `url(/maps/${map.toLowerCase()}.webp)` }}
+            />
+
+            {/* Row 1: map name + status badge */}
+            <div className="relative flex justify-between items-center">
+              <div className="font-medium">{map}</div>
+              {(isBanned || isPicked || isDecider) && (
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    isBanned && "bg-destructive/20 text-destructive border-destructive/30",
+                    isPicked && "bg-constructive/20 text-constructive border-constructive/30",
+                    isDecider && "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                  )}
+                >
+                  {isBanned && "BANNED"}
+                  {isPicked && "PICKED"}
+                  {isDecider && "DECIDER"}
+                </Badge>
               )}
-            </h3>
-            <div className="flex gap-4 justify-center">
-              <Button
-                variant="outline"
-                onClick={() => onSideSelect("attack")}
-                className="flex-1 max-w-[200px] h-auto py-4 flex-col bg-orange-500/10 border-orange-500/40 hover:bg-orange-500/20 text-orange-400"
-              >
-                <div className="font-semibold">Attack</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Start on attack side
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => onSideSelect("defense")}
-                className="flex-1 max-w-[200px] h-auto py-4 flex-col bg-blue-500/10 border-blue-500/40 hover:bg-blue-500/20 text-blue-400"
-              >
-                <div className="font-semibold">Defense</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Start on defense side
-                </div>
-              </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Map Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {veto.mapPool.map((map) => {
-          const action = getMapAction(map);
-          const sideSelection = getSideSelection(map);
-          const isBanned = action?.type === "ban";
-          const isPicked = action?.type === "pick";
-          const isDecider = action?.type === "decider";
-          const isAvailable = availableMaps.includes(map);
-
-          const canClick =
-            canAct &&
-            isAvailable &&
-            (veto.currentPhase === "ban" || veto.currentPhase === "pick");
-
-          return (
-            <button
-              key={map}
-              onClick={() => canClick && onMapClick?.(map)}
-              disabled={!canClick}
-              className={cn(
-                "relative flex flex-col justify-between p-4 border transition-all text-left h-20 overflow-hidden",
-                isBanned && "bg-destructive/20 border-destructive opacity-60",
-                isPicked && "bg-constructive/20 border-constructive",
-                isDecider && "bg-yellow-500/20 border-yellow-500",
-                !isBanned && !isPicked && !isDecider && isAvailable && canClick &&
-                  "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/30 cursor-pointer",
-                !isBanned && !isPicked && !isDecider && (!isAvailable || !canClick) &&
-                  "bg-card border-border",
-                !canClick && "cursor-default"
-              )}
-            >
-              {/* Background image layer */}
-              <div
-                className="absolute inset-0 bg-cover bg-top opacity-15 grayscale pointer-events-none"
-                style={{ backgroundImage: `url(/maps/${map.toLowerCase()}.webp)` }}
-              />
-
-              {/* Row 1: map name + status badge */}
-              <div className="relative flex justify-between items-center">
-                <div className="font-medium">{map}</div>
-                {(isBanned || isPicked || isDecider) && (
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      isBanned && "bg-destructive/20 text-destructive border-destructive/30",
-                      isPicked && "bg-constructive/20 text-constructive border-constructive/30",
-                      isDecider && "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                    )}
-                  >
-                    {isBanned && "BANNED"}
-                    {isPicked && "PICKED"}
-                    {isDecider && "DECIDER"}
-                  </Badge>
-                )}
+            {/* Row 2: side selection + team that picked/banned */}
+            <div className="relative flex justify-between items-center text-xs text-muted-foreground">
+              <div>
+                {sideSelection ? `${getTeamName(sideSelection.team)} ${sideSelection.side}` : "\u00A0"}
               </div>
-
-              {/* Row 2: side selection + team that picked/banned */}
-              <div className="relative flex justify-between items-center text-xs text-muted-foreground">
-                <div>
-                  {sideSelection ? `${getTeamName(sideSelection.team)}: ${sideSelection.side}` : "\u00A0"}
-                </div>
-                <div>
-                  {action && action.team !== "none" ? getTeamName(action.team) : "\u00A0"}
-                </div>
+              <div>
+                {action && action.team !== "none" ? getTeamName(action.team) : "\u00A0"}
               </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Completed Summary */}
-      {veto.status === "completed" && (
-        <div className="bg-primary/10 border border-primary/30 p-4 text-center">
-          <div className="text-primary font-semibold">Veto Complete!</div>
-          <div className="text-sm text-muted-foreground mt-2">
-            Maps to play: {pickedMaps.map((a) => a.map).join(", ")}
-          </div>
-        </div>
-      )}
-
-      {/* Waiting state */}
-      {veto.status === "waiting" && (
-        <div className="bg-muted p-4 text-center text-muted-foreground">
-          Waiting for admin to start the veto...
-        </div>
-      )}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

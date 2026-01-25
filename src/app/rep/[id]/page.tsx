@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoHeader } from "@/components/veto/VetoHeader";
+import { VetoBanner } from "@/components/veto/VetoBanner";
 import { CaptainHeader } from "@/components/layout/CaptainHeader";
 import { Header } from "@/components/layout/Header";
 import { Container } from "@/components/layout/Container";
@@ -93,11 +94,15 @@ export default function CaptainVetoPage({
           teamBName={veto.teamB.name}
           format={veto.format}
         />
+        <VetoBanner
+          veto={veto}
+          userTeam={team}
+          onSideSelect={handleSideSelect}
+        />
         <VetoDisplay
           veto={veto}
           userTeam={team}
           onMapClick={handleMapClick}
-          onSideSelect={handleSideSelect}
         />
       </Container>
     </>

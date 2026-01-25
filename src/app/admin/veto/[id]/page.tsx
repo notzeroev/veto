@@ -6,10 +6,11 @@ import { Id } from "../../../../../convex/_generated/dataModel";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoConsole } from "@/components/veto/VetoConsole";
 import { VetoHeader } from "@/components/veto/VetoHeader";
+import { VetoBanner } from "@/components/veto/VetoBanner";
 import { Container } from "@/components/layout/Container";
 import { useState, use } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Link, Check } from "@phosphor-icons/react";
 
@@ -139,39 +140,11 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
 
             {/* Console */}
             <VetoConsole veto={veto} onReset={handleReset} onDelete={handleDelete} />
-
-            {/* Admin Controls */}
-            {veto.status === "waiting" && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Start the veto - select who bans first
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleStart("teamA")}
-                      className="flex-1"
-                    >
-                      {veto.teamA.name} first
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleStart("teamB")}
-                      className="flex-1"
-                    >
-                      {veto.teamB.name} first
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
-          {/* Right Column: Veto Display */}
+          {/* Right Column: Banner + Veto Display */}
           <div>
+            <VetoBanner veto={veto} userTeam="admin" onStartVeto={handleStart} />
             <VetoDisplay veto={veto} userTeam="admin" />
           </div>
         </div>
