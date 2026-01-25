@@ -79,7 +79,7 @@ export function VetoConsole({ veto, className = "" }: Props) {
                         action.type === "ban" && "text-destructive",
                         action.type === "decider" && "text-yellow-400",
                         action.type === "side_select" && "text-purple-400",
-                        action.type === "pick" && "text-primary"
+                        action.type === "pick" && "text-constructive"
                       )}
                     >
                       {action.type === "side_select"

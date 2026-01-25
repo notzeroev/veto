@@ -2,7 +2,6 @@ import type React from "react";
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import { ConvexClientProvider } from "@/utils/convex/ConvexClientProvider";
-import { Header } from "@/components/layout/Header";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -24,10 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("dark", jetbrainsMono.variable)}>
       <body className="min-h-screen bg-background text-foreground">
-        <ConvexClientProvider>
-          <Header />
-          <main>{children}</main>
-        </ConvexClientProvider>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );

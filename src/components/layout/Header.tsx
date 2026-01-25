@@ -1,9 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { UserMenu } from "@/components/auth/UserMenu";
+import type { ReactNode } from "react";
 
-export function Header() {
+interface HeaderProps {
+  children?: ReactNode;
+}
+
+export function Header({ children }: HeaderProps) {
   return (
     <header className="border-b border-border px-6 py-4">
       <div className="container mx-auto flex items-center justify-between">
@@ -13,7 +15,7 @@ export function Header() {
         >
           vet0
         </Link>
-        <UserMenu />
+        {children}
       </div>
     </header>
   );

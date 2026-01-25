@@ -2,18 +2,17 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { AuthGuard } from "@/components/auth/AuthGuard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-function DashboardContent() {
+export default function AdminDashboard() {
   const vetos = useQuery(api.vetos.listMyVetos);
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -79,13 +78,5 @@ function DashboardContent() {
         )}
       </div>
     </div>
-  );
-}
-
-export default function AdminDashboard() {
-  return (
-    <AuthGuard>
-      <DashboardContent />
-    </AuthGuard>
   );
 }

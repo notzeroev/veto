@@ -3,10 +3,8 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
-import { AuthGuard } from "@/components/auth/AuthGuard";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoConsole } from "@/components/veto/VetoConsole";
-import Link from "next/link";
 import { useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +22,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
 
   if (veto === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-12">
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
@@ -32,15 +30,15 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
 
   if (veto === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-12">
         <div className="text-destructive">Veto not found</div>
       </div>
     );
   }
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-  const teamALink = `${baseUrl}/veto/${veto.teamA.token}`;
-  const teamBLink = `${baseUrl}/veto/${veto.teamB.token}`;
+  const teamALink = `${baseUrl}/rep/${veto.teamA.token}`;
+  const teamBLink = `${baseUrl}/rep/${veto.teamB.token}`;
 
   const copyLink = async (team: "teamA" | "teamB") => {
     const link = team === "teamA" ? teamALink : teamBLink;
@@ -63,7 +61,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="p-6">
       <div className="max-w-6xl mx-auto">
         {/* Top row: Share Links + Console side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -71,7 +69,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Share these links with team captains
+                Share these links with team reps
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -95,7 +93,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                   size="sm"
                   onClick={() => copyLink("teamA")}
                 >
-                  {copiedTeam === "teamA" ? "Copied!" : "Copy"}
+                  {copiedTeam === "teamA" ? "Copied" : "Copy"}
                 </Button>
               </div>
 
@@ -119,7 +117,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                   size="sm"
                   onClick={() => copyLink("teamB")}
                 >
-                  {copiedTeam === "teamB" ? "Copied!" : "Copy"}
+                  {copiedTeam === "teamB" ? "Copied" : "Copy"}
                 </Button>
               </div>
             </CardContent>
@@ -202,9 +200,5 @@ export default function VetoAdminPage({
 }) {
   const { id } = use(params);
 
-  return (
-    <AuthGuard>
-      <VetoAdminContent vetoId={id as Id<"vetos">} />
-    </AuthGuard>
-  );
+  return <VetoAdminContent vetoId={id as Id<"vetos">} />;
 }

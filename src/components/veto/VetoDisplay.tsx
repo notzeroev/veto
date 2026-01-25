@@ -92,13 +92,13 @@ export function VetoDisplay({
         <h2 className="text-xl font-semibold mb-2">{veto.name}</h2>
         <div className="flex items-center justify-center gap-4 text-sm">
           <span
-            className={veto.teamAConnected ? "text-primary" : "text-muted-foreground"}
+            className={veto.teamAConnected ? "text-foreground" : "text-muted-foreground"}
           >
             {teamAName} {veto.teamAConnected ? "●" : "○"}
           </span>
           <span className="text-muted-foreground/50">vs</span>
           <span
-            className={veto.teamBConnected ? "text-primary" : "text-muted-foreground"}
+            className={veto.teamBConnected ? "text-foreground" : "text-muted-foreground"}
           >
             {veto.teamBConnected ? "●" : "○"} {teamBName}
           </span>
@@ -139,7 +139,7 @@ export function VetoDisplay({
         <Card>
           <CardContent className="pt-4">
             <h3 className="text-center font-medium mb-4">
-              Choose your starting side
+              Choose your side
               {veto.pendingSideSelectionMap && (
                 <span className="text-muted-foreground ml-2">
                   on {veto.pendingSideSelectionMap}
@@ -193,10 +193,10 @@ export function VetoDisplay({
               onClick={() => canClick && onMapClick?.(map)}
               disabled={!canClick}
               className={cn(
-                "relative p-4 border transition-all text-left",
-                isBanned && "bg-destructive/10 border-destructive/30 opacity-60",
-                isPicked && "bg-primary/10 border-primary/30",
-                isDecider && "bg-yellow-500/10 border-yellow-500/30",
+                "relative flex flex-col justify-between p-4 border transition-all text-left h-20 overflow-hidden",
+                isBanned && "bg-destructive/20 border-destructive opacity-60",
+                isPicked && "bg-constructive/20 border-constructive",
+                isDecider && "bg-yellow-500/20 border-yellow-500",
                 !isBanned && !isPicked && !isDecider && isAvailable && canClick &&
                   "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/30 cursor-pointer",
                 !isBanned && !isPicked && !isDecider && (!isAvailable || !canClick) &&
@@ -204,38 +204,40 @@ export function VetoDisplay({
                 !canClick && "cursor-default"
               )}
             >
-              <div className="font-medium">{map}</div>
+              {/* Background image layer */}
+              <div
+                className="absolute inset-0 bg-cover bg-top opacity-15 grayscale pointer-events-none"
+                style={{ backgroundImage: `url(/maps/${map.toLowerCase()}.webp)` }}
+              />
 
-              {/* Status badge */}
-              {(isBanned || isPicked || isDecider) && (
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "absolute top-2 right-2",
-                    isBanned && "bg-destructive/20 text-destructive border-destructive/30",
-                    isPicked && "bg-primary/20 text-primary border-primary/30",
-                    isDecider && "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                  )}
-                >
-                  {isBanned && "BANNED"}
-                  {isPicked && "PICKED"}
-                  {isDecider && "DECIDER"}
-                </Badge>
-              )}
+              {/* Row 1: map name + status badge */}
+              <div className="relative flex justify-between items-center">
+                <div className="font-medium">{map}</div>
+                {(isBanned || isPicked || isDecider) && (
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      isBanned && "bg-destructive/20 text-destructive border-destructive/30",
+                      isPicked && "bg-constructive/20 text-constructive border-constructive/30",
+                      isDecider && "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                    )}
+                  >
+                    {isBanned && "BANNED"}
+                    {isPicked && "PICKED"}
+                    {isDecider && "DECIDER"}
+                  </Badge>
+                )}
+              </div>
 
-              {/* Team indicator */}
-              {action && action.team !== "none" && (
-                <div className="text-xs text-muted-foreground mt-2">
-                  {getTeamName(action.team)}
+              {/* Row 2: side selection + team that picked/banned */}
+              <div className="relative flex justify-between items-center text-xs text-muted-foreground">
+                <div>
+                  {sideSelection ? `${getTeamName(sideSelection.team)}: ${sideSelection.side}` : "\u00A0"}
                 </div>
-              )}
-
-              {/* Side selection indicator */}
-              {sideSelection && (
-                <div className="text-xs mt-1">
-                  {getTeamName(sideSelection.team)}: {sideSelection.side}
+                <div>
+                  {action && action.team !== "none" ? getTeamName(action.team) : "\u00A0"}
                 </div>
-              )}
+              </div>
             </button>
           );
         })}

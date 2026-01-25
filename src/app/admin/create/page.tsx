@@ -1,13 +1,12 @@
 "use client";
 
-import { AuthGuard } from "@/components/auth/AuthGuard";
 import { CreateVetoForm } from "@/components/veto/CreateVetoForm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-function CreateContent() {
+export default function CreateVetoPage() {
   return (
-    <div className="min-h-screen p-6">
+    <div className="p-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <Button
@@ -22,13 +21,5 @@ function CreateContent() {
         <CreateVetoForm />
       </div>
     </div>
-  );
-}
-
-export default function CreateVetoPage() {
-  return (
-    <AuthGuard>
-      <CreateContent />
-    </AuthGuard>
   );
 }

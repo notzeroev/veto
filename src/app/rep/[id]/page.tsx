@@ -3,15 +3,16 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
+import { CaptainHeader } from "@/components/layout/CaptainHeader";
+import { Header } from "@/components/layout/Header";
 import { useEffect, use } from "react";
-import { Badge } from "@/components/ui/badge";
 
 export default function CaptainVetoPage({
   params,
 }: {
-  params: Promise<{ token: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const { token } = use(params);
+  const { id: token } = use(params);
 
   const data = useQuery(api.vetos.getByToken, { token });
   const captainConnect = useMutation(api.vetos.captainConnect);
@@ -29,23 +30,29 @@ export default function CaptainVetoPage({
   // Loading state
   if (data === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </>
     );
   }
 
   // Invalid token
   if (data === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-destructive text-xl mb-2">Invalid Link</div>
-          <div className="text-muted-foreground">
-            This veto link is invalid or has expired.
+      <>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-destructive text-xl mb-2">Invalid Link</div>
+            <div className="text-muted-foreground">
+              This veto link is invalid or has expired.
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -75,24 +82,18 @@ export default function CaptainVetoPage({
   const myTeamName = team === "teamA" ? veto.teamA.name : veto.teamB.name;
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Team indicator */}
-        <div className="mb-6 text-center">
-          <Badge variant="secondary" className="px-4 py-2 text-sm">
-            <span className="text-muted-foreground">You are captain of</span>
-            <span className="ml-2 font-semibold text-foreground">{myTeamName}</span>
-          </Badge>
+    <>
+      <CaptainHeader teamName={myTeamName} />
+      <main className="p-6">
+        <div className="max-w-4xl mx-auto">
+          <VetoDisplay
+            veto={veto}
+            userTeam={team}
+            onMapClick={handleMapClick}
+            onSideSelect={handleSideSelect}
+          />
         </div>
-
-        {/* Veto Display */}
-        <VetoDisplay
-          veto={veto}
-          userTeam={team}
-          onMapClick={handleMapClick}
-          onSideSelect={handleSideSelect}
-        />
-      </div>
-    </div>
+      </main>
+    </>
   );
 }
