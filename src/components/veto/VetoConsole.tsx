@@ -24,12 +24,12 @@ type Props = {
 
 export function VetoConsole({ veto, className = "", onReset, onDelete }: Props) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const teamAName = veto.teamA.name;
-  const teamBName = veto.teamB.name;
+  const teamATag = veto.teamA.tag;
+  const teamBTag = veto.teamB.tag;
 
-  const getTeamName = (team: "teamA" | "teamB" | "none") => {
-    if (team === "teamA") return teamAName;
-    if (team === "teamB") return teamBName;
+  const getTeamTag = (team: "teamA" | "teamB" | "none") => {
+    if (team === "teamA") return teamATag;
+    if (team === "teamB") return teamBTag;
     return "";
   };
 
@@ -104,9 +104,9 @@ export function VetoConsole({ veto, className = "", onReset, onDelete }: Props) 
                     ? "Attack"
                     : "Defense"
                   : action.map;
-              // Get team display name (or empty for decider)
+              // Get team display tag (or empty for decider)
               const teamDisplay =
-                action.team === "none" ? "" : getTeamName(action.team);
+                action.team === "none" ? "" : getTeamTag(action.team);
 
               return (
                 <div key={idx} className="flex items-center gap-3 text-sm">
@@ -117,28 +117,22 @@ export function VetoConsole({ veto, className = "", onReset, onDelete }: Props) 
                   )}
                   <span className="flex items-center gap-3">
                     {teamDisplay && (
-                      <span className="text-foreground">{teamDisplay}</span>
+                      <span className="text-muted-foreground">{teamDisplay}</span>
                     )}
                     <span
                       className={cn(
                         action.type === "ban" && "text-destructive",
                         action.type === "decider" && "text-yellow-400",
-                        action.type === "side_select" && "text-purple-400",
+                        action.type === "side_select" && "text-yellow-400",
                         action.type === "pick" && "text-constructive"
                       )}
                     >
                       {action.type === "side_select"
-                        ? "SIDE SELECT"
+                        ? "SELECT"
                         : action.type.toUpperCase()}
                     </span>
                     <span
-                      className={cn(
-                        action.type === "side_select"
-                          ? action.side === "attack"
-                            ? "text-orange-400"
-                            : "text-blue-400"
-                          : "text-muted-foreground"
-                      )}
+                      className="text-foreground"
                     >
                       {argument}
                     </span>

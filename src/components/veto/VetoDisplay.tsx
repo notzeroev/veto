@@ -18,8 +18,8 @@ export type SanitizedVeto = {
   name: string;
   format: "bo1" | "bo3" | "bo5";
   mapPool: string[];
-  teamA: { name: string };
-  teamB: { name: string };
+  teamA: { name: string; tag: string };
+  teamB: { name: string; tag: string };
   status: "waiting" | "coin_flip" | "in_progress" | "completed";
   firstPick?: "teamA" | "teamB";
   currentTurn?: "teamA" | "teamB";
@@ -54,14 +54,14 @@ export function VetoDisplay({
 
   const canAct = veto.status === "in_progress" && isMyTurn;
 
-  // Get team names
-  const teamAName = veto.teamA.name;
-  const teamBName = veto.teamB.name;
+  // Get team tags for display
+  const teamATag = veto.teamA.tag;
+  const teamBTag = veto.teamB.tag;
 
-  const getTeamName = (team: "teamA" | "teamB" | "none") => {
-    if (team === "teamA") return teamAName;
-    if (team === "teamB") return teamBName;
-    return "Decider";
+  const getTeamTag = (team: "teamA" | "teamB" | "none") => {
+    if (team === "teamA") return teamATag;
+    if (team === "teamB") return teamBTag;
+    return "DEC";
   };
 
   // Get the side selection for a map
@@ -136,10 +136,10 @@ export function VetoDisplay({
             {/* Row 2: side selection + team that picked/banned */}
             <div className="relative flex justify-between items-center text-xs text-muted-foreground">
               <div>
-                {sideSelection ? `${getTeamName(sideSelection.team)} ${sideSelection.side}` : "\u00A0"}
+                {sideSelection ? `${getTeamTag(sideSelection.team)} ${sideSelection.side}` : "\u00A0"}
               </div>
               <div>
-                {action && action.team !== "none" ? getTeamName(action.team) : "\u00A0"}
+                {action && action.team !== "none" ? getTeamTag(action.team) : "\u00A0"}
               </div>
             </div>
           </button>

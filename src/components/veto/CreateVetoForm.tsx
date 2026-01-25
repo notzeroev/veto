@@ -30,7 +30,9 @@ export function CreateVetoForm() {
   const [name, setName] = useState("");
   const [format, setFormat] = useState<"bo1" | "bo3" | "bo5">("bo3");
   const [teamAName, setTeamAName] = useState("");
+  const [teamATag, setTeamATag] = useState("");
   const [teamBName, setTeamBName] = useState("");
+  const [teamBTag, setTeamBTag] = useState("");
   const [selectedMaps, setSelectedMaps] = useState<string[]>(DEFAULT_MAPS.slice(0, 7));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,23 @@ export function CreateVetoForm() {
     e.preventDefault();
     setError(null);
 
+    // Client-side validation
+    if (teamAName.length < 5 || teamAName.length > 15) {
+      setError("Team A name must be 5-15 characters");
+      return;
+    }
+    if (teamBName.length < 5 || teamBName.length > 15) {
+      setError("Team B name must be 5-15 characters");
+      return;
+    }
+    if (teamATag.length < 1 || teamATag.length > 5) {
+      setError("Team A tag must be 1-5 characters");
+      return;
+    }
+    if (teamBTag.length < 1 || teamBTag.length > 5) {
+      setError("Team B tag must be 1-5 characters");
+      return;
+    }
     if (selectedMaps.length < 7) {
       setError("Please select at least 7 maps");
       return;
@@ -56,7 +75,9 @@ export function CreateVetoForm() {
         name,
         format,
         teamAName,
+        teamATag,
         teamBName,
+        teamBTag,
         mapPool: selectedMaps,
       });
       router.push(`/admin/veto/${vetoId}`);
@@ -99,26 +120,50 @@ export function CreateVetoForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Team A</Label>
+        <div>
+          <Label className="mb-2 block">Team A</Label>
           <Input
             type="text"
             value={teamAName}
             onChange={(e) => setTeamAName(e.target.value)}
             required
-            placeholder="Team name"
+            placeholder="Name (5-15)"
             className="h-10"
+            minLength={5}
+            maxLength={15}
+          />
+          <Input
+            type="text"
+            value={teamATag}
+            onChange={(e) => setTeamATag(e.target.value.toUpperCase())}
+            required
+            placeholder="TAG (1-5)"
+            className="h-10 uppercase mt-2"
+            minLength={1}
+            maxLength={5}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Team B</Label>
+        <div>
+          <Label className="mb-2 block">Team B</Label>
           <Input
             type="text"
             value={teamBName}
             onChange={(e) => setTeamBName(e.target.value)}
             required
-            placeholder="Team name"
+            placeholder="Name (5-15)"
             className="h-10"
+            minLength={5}
+            maxLength={15}
+          />
+          <Input
+            type="text"
+            value={teamBTag}
+            onChange={(e) => setTeamBTag(e.target.value.toUpperCase())}
+            required
+            placeholder="TAG (1-5)"
+            className="h-10 uppercase mt-2"
+            minLength={1}
+            maxLength={5}
           />
         </div>
       </div>

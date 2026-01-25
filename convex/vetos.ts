@@ -130,13 +130,31 @@ export const create = mutation({
     name: v.string(),
     format: v.union(v.literal("bo1"), v.literal("bo3"), v.literal("bo5")),
     teamAName: v.string(),
+    teamATag: v.string(),
     teamBName: v.string(),
+    teamBTag: v.string(),
     mapPool: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Must be logged in to create a veto");
+    }
+
+    // Validate team names (5-15 characters)
+    if (args.teamAName.length < 5 || args.teamAName.length > 15) {
+      throw new Error("Team A name must be 5-15 characters");
+    }
+    if (args.teamBName.length < 5 || args.teamBName.length > 15) {
+      throw new Error("Team B name must be 5-15 characters");
+    }
+
+    // Validate team tags (1-5 characters)
+    if (args.teamATag.length < 1 || args.teamATag.length > 5) {
+      throw new Error("Team A tag must be 1-5 characters");
+    }
+    if (args.teamBTag.length < 1 || args.teamBTag.length > 5) {
+      throw new Error("Team B tag must be 1-5 characters");
     }
 
     const mapPool = args.mapPool ?? DEFAULT_MAP_POOL;
@@ -152,10 +170,12 @@ export const create = mutation({
       mapPool,
       teamA: {
         name: args.teamAName,
+        tag: args.teamATag.toUpperCase(),
         token: generateToken(),
       },
       teamB: {
         name: args.teamBName,
+        tag: args.teamBTag.toUpperCase(),
         token: generateToken(),
       },
       status: "waiting",
@@ -334,8 +354,8 @@ function sanitizeVetoForCaptain(veto: Doc<"vetos">) {
     name: veto.name,
     format: veto.format,
     mapPool: veto.mapPool,
-    teamA: { name: veto.teamA.name },
-    teamB: { name: veto.teamB.name },
+    teamA: { name: veto.teamA.name, tag: veto.teamA.tag },
+    teamB: { name: veto.teamB.name, tag: veto.teamB.tag },
     status: veto.status,
     firstPick: veto.firstPick,
     currentTurn: veto.currentTurn,

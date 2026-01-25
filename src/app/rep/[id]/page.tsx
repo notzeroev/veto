@@ -81,12 +81,12 @@ export default function CaptainVetoPage({
     }
   };
 
-  // Get the user's team name
-  const myTeamName = team === "teamA" ? veto.teamA.name : veto.teamB.name;
+  // Get the user's team tag
+  const myTeamTag = team === "teamA" ? veto.teamA.tag : veto.teamB.tag;
 
   return (
     <>
-      <CaptainHeader teamName={myTeamName} />
+      <CaptainHeader teamTag={myTeamTag} />
       <Container className="py-6">
         <VetoHeader
           name={veto.name}

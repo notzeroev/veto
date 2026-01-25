@@ -90,11 +90,11 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                 <div className="flex items-center gap-3">
                   <span
                     className={cn(
-                      "w-32 text-sm truncate",
+                      "w-16 text-sm font-medium",
                       veto.teamAConnected ? "text-primary" : "text-muted-foreground"
                     )}
                   >
-                    {veto.teamA.name}
+                    {veto.teamA.tag}
                   </span>
                   <code
                     onClick={() => copyToken("teamA")}
@@ -115,11 +115,11 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                 <div className="flex items-center gap-3">
                   <span
                     className={cn(
-                      "w-32 text-sm truncate",
+                      "w-16 text-sm font-medium",
                       veto.teamBConnected ? "text-primary" : "text-muted-foreground"
                     )}
                   >
-                    {veto.teamB.name}
+                    {veto.teamB.tag}
                   </span>
                   <code
                     onClick={() => copyToken("teamB")}

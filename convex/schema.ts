@@ -34,11 +34,13 @@ const schema = defineSchema({
 
     // Team information
     teamA: v.object({
-      name: v.string(),
+      name: v.string(), // 5-15 characters
+      tag: v.string(), // 1-5 characters, uppercase
       token: v.string(), // Unique invite token for captain
     }),
     teamB: v.object({
-      name: v.string(),
+      name: v.string(), // 5-15 characters
+      tag: v.string(), // 1-5 characters, uppercase
       token: v.string(), // Unique invite token for captain
     }),
 

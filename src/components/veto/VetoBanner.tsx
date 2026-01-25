@@ -18,15 +18,15 @@ export function VetoBanner({
   onStartVeto,
   onSideSelect,
 }: Props) {
-  const teamAName = veto.teamA.name;
-  const teamBName = veto.teamB.name;
+  const teamATag = veto.teamA.tag;
+  const teamBTag = veto.teamB.tag;
 
   const isMyTurn =
     userTeam !== "admin" &&
     userTeam !== "spectator" &&
     veto.currentTurn === userTeam;
 
-  const currentTeamName = veto.currentTurn === "teamA" ? teamAName : teamBName;
+  const currentTeamTag = veto.currentTurn === "teamA" ? teamATag : teamBTag;
 
   // Get picked maps for completed summary
   const pickedMaps = veto.actions
@@ -121,7 +121,7 @@ export function VetoBanner({
       {/* Side Selection - Waiting */}
       {state === "side_select_waiting" && (
         <div className="text-muted-foreground">
-          {currentTeamName} is choosing their side
+          {currentTeamTag} is choosing their side
           {veto.pendingSideSelectionMap && ` on ${veto.pendingSideSelectionMap}`}...
         </div>
       )}
@@ -140,7 +140,7 @@ export function VetoBanner({
       {/* Ban/Pick - Waiting */}
       {state === "turn_waiting" && (
         <div className="text-muted-foreground">
-          {currentTeamName} is {veto.currentPhase === "ban" ? "banning" : "picking"} a map...
+          {currentTeamTag} is {veto.currentPhase === "ban" ? "banning" : "picking"} a map...
         </div>
       )}
 
@@ -156,14 +156,14 @@ export function VetoBanner({
               size="sm"
               onClick={() => onStartVeto("teamA")}
             >
-              {teamAName}
+              {teamATag}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onStartVeto("teamB")}
             >
-              {teamBName}
+              {teamBTag}
             </Button>
           </div>
         </>
