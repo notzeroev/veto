@@ -3,6 +3,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
+import { VetoHeader } from "@/components/veto/VetoHeader";
 import { CaptainHeader } from "@/components/layout/CaptainHeader";
 import { Header } from "@/components/layout/Header";
 import { useEffect, use } from "react";
@@ -86,6 +87,12 @@ export default function CaptainVetoPage({
       <CaptainHeader teamName={myTeamName} />
       <main className="p-6">
         <div className="max-w-4xl mx-auto">
+          <VetoHeader
+            name={veto.name}
+            teamAName={veto.teamA.name}
+            teamBName={veto.teamB.name}
+            format={veto.format}
+          />
           <VetoDisplay
             veto={veto}
             userTeam={team}

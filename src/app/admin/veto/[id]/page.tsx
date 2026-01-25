@@ -5,11 +5,12 @@ import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoConsole } from "@/components/veto/VetoConsole";
+import { VetoHeader } from "@/components/veto/VetoHeader";
 import { useState, use } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Link, Check } from "@phosphor-icons/react";
 
 function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   const veto = useQuery(api.vetos.getAsAdmin, { vetoId });
@@ -18,7 +19,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   const deleteVeto = useMutation(api.vetos.deleteVeto);
 
   const [copiedTeam, setCopiedTeam] = useState<"teamA" | "teamB" | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [copiedToken, setCopiedToken] = useState<"teamA" | "teamB" | null>(null);
 
   if (veto === undefined) {
     return (
@@ -47,6 +48,13 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
     setTimeout(() => setCopiedTeam(null), 2000);
   };
 
+  const copyToken = async (team: "teamA" | "teamB") => {
+    const token = team === "teamA" ? veto.teamA.token : veto.teamB.token;
+    await navigator.clipboard.writeText(token);
+    setCopiedToken(team);
+    setTimeout(() => setCopiedToken(null), 2000);
+  };
+
   const handleStart = async (firstPick: "teamA" | "teamB") => {
     await startVeto({ vetoId, firstPick });
   };
@@ -63,130 +71,109 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Top row: Share Links + Console side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Captain Links */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Share these links with team reps
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {/* Team A */}
-              <div className="flex items-center gap-3">
-                <span
-                  className={cn(
-                    "w-32 text-sm truncate",
-                    veto.teamAConnected ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
-                  {veto.teamA.name} {veto.teamAConnected && "✓"}
-                </span>
-                <Input
-                  readOnly
-                  value={teamALink}
-                  className="flex-1 min-w-0"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyLink("teamA")}
-                >
-                  {copiedTeam === "teamA" ? "Copied" : "Copy"}
-                </Button>
-              </div>
+        <VetoHeader
+          name={veto.name}
+          teamAName={veto.teamA.name}
+          teamBName={veto.teamB.name}
+          format={veto.format}
+        />
 
-              {/* Team B */}
-              <div className="flex items-center gap-3">
-                <span
-                  className={cn(
-                    "w-32 text-sm truncate",
-                    veto.teamBConnected ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
-                  {veto.teamB.name} {veto.teamBConnected && "✓"}
-                </span>
-                <Input
-                  readOnly
-                  value={teamBLink}
-                  className="flex-1 min-w-0"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyLink("teamB")}
-                >
-                  {copiedTeam === "teamB" ? "Copied" : "Copy"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Two column layout: Left (links + console) | Right (veto display) - 1:2 ratio */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column: Links + Console */}
+          <div className="space-y-6">
+            {/* Captain Links */}
+            <Card>
+              <CardContent className="space-y-3">
+                {/* Team A */}
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "w-32 text-sm truncate",
+                      veto.teamAConnected ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {veto.teamA.name}
+                  </span>
+                  <code
+                    onClick={() => copyToken("teamA")}
+                    className="flex-1 min-w-0 text-sm text-muted-foreground font-mono bg-muted px-3 py-2 truncate cursor-pointer hover:bg-muted/80"
+                  >
+                    {copiedToken === "teamA" ? "Copied!" : veto.teamA.token}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => copyLink("teamA")}
+                  >
+                    {copiedTeam === "teamA" ? <Check size={16} /> : <Link size={16} />}
+                  </Button>
+                </div>
 
-          {/* Console */}
-          <VetoConsole veto={veto} className="h-full" />
-        </div>
+                {/* Team B */}
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "w-32 text-sm truncate",
+                      veto.teamBConnected ? "text-primary" : "text-muted-foreground"
+                    )}
+                  >
+                    {veto.teamB.name}
+                  </span>
+                  <code
+                    onClick={() => copyToken("teamB")}
+                    className="flex-1 min-w-0 text-sm text-muted-foreground font-mono bg-muted px-3 py-2 truncate cursor-pointer hover:bg-muted/80"
+                  >
+                    {copiedToken === "teamB" ? "Copied!" : veto.teamB.token}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => copyLink("teamB")}
+                  >
+                    {copiedTeam === "teamB" ? <Check size={16} /> : <Link size={16} />}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Admin Controls */}
-        {veto.status === "waiting" && (
-          <Card className="mb-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Start the veto - select who bans first
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => handleStart("teamA")}
-                  className="flex-1"
-                >
-                  {veto.teamA.name} first
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleStart("teamB")}
-                  className="flex-1"
-                >
-                  {veto.teamB.name} first
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            {/* Console */}
+            <VetoConsole veto={veto} onReset={handleReset} onDelete={handleDelete} />
 
-        {/* Veto Display */}
-        <VetoDisplay veto={veto} userTeam="admin" />
+            {/* Admin Controls */}
+            {veto.status === "waiting" && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Start the veto - select who bans first
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleStart("teamA")}
+                      className="flex-1"
+                    >
+                      {veto.teamA.name} first
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleStart("teamB")}
+                      className="flex-1"
+                    >
+                      {veto.teamB.name} first
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-        {/* Admin Actions */}
-        <div className="mt-8 flex gap-3 justify-end">
-          {veto.status !== "waiting" && (
-            <Button variant="outline" onClick={handleReset}>
-              Reset Veto
-            </Button>
-          )}
-          {!showDeleteConfirm ? (
-            <Button
-              variant="destructive"
-              onClick={() => setShowDeleteConfirm(true)}
-            >
-              Delete
-            </Button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Are you sure?</span>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-              >
-                Yes, delete
-              </Button>
-              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                Cancel
-              </Button>
-            </div>
-          )}
+          {/* Right Column: Veto Display */}
+          <div className="lg:col-span-2">
+            <VetoDisplay veto={veto} userTeam="admin" />
+          </div>
         </div>
       </div>
     </div>

@@ -87,27 +87,6 @@ export function VetoDisplay({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-xl font-semibold mb-2">{veto.name}</h2>
-        <div className="flex items-center justify-center gap-4 text-sm">
-          <span
-            className={veto.teamAConnected ? "text-foreground" : "text-muted-foreground"}
-          >
-            {teamAName} {veto.teamAConnected ? "●" : "○"}
-          </span>
-          <span className="text-muted-foreground/50">vs</span>
-          <span
-            className={veto.teamBConnected ? "text-foreground" : "text-muted-foreground"}
-          >
-            {veto.teamBConnected ? "●" : "○"} {teamBName}
-          </span>
-        </div>
-        <div className="mt-2 text-xs text-muted-foreground uppercase tracking-wide">
-          {veto.format.toUpperCase()} • {veto.status.replace("_", " ")}
-        </div>
-      </div>
-
       {/* Current Turn Indicator */}
       {veto.status === "in_progress" && veto.currentTurn && veto.currentPhase && (
         <div

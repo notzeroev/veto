@@ -9,8 +9,8 @@ export function CaptainHeader({ teamName }: CaptainHeaderProps) {
   return (
     <Header>
       <Badge variant="ghost" className="hover:bg-transparent dark:hover:bg-transparent">
-        <span className="text-muted-foreground">Repping</span>
-        <span className="ml-2 font-semibold text-foreground">{teamName}</span>
+        <span className="font-semibold text-foreground">Rep</span>
+        <span className="text-muted-foreground">[{teamName}]</span>
       </Badge>
     </Header>
   );
