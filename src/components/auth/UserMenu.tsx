@@ -28,17 +28,17 @@ export function UserMenu() {
         <CaretDown className="size-3" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-32">
-        <Link href="/admin">
-          <DropdownMenuItem className="cursor-pointer">
-            <RowsIcon className="size-4" />
-            Dashboard
-          </DropdownMenuItem>
-        </Link>
-        <DropdownMenuSeparator />
         <Link href="/admin/create">
           <DropdownMenuItem className="cursor-pointer">
             <Plus className="size-4" />
             New Veto
+          </DropdownMenuItem>
+        </Link>
+        <DropdownMenuSeparator />
+        <Link href="/admin">
+          <DropdownMenuItem className="cursor-pointer">
+            <RowsIcon className="size-4" />
+            Dashboard
           </DropdownMenuItem>
         </Link>
         <DropdownMenuSeparator />

@@ -122,8 +122,8 @@ export function VetoConsole({ veto, className = "", onReset, onDelete }: Props) 
                     <span
                       className={cn(
                         action.type === "ban" && "text-destructive",
-                        action.type === "decider" && "text-yellow-400",
-                        action.type === "side_select" && "text-yellow-400",
+                        action.type === "decider" && "text-neutral",
+                        action.type === "side_select" && "text-neutral",
                         action.type === "pick" && "text-constructive"
                       )}
                     >

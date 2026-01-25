@@ -48,22 +48,21 @@ export default function AdminDashboard() {
                 <Card className="p-4 hover:ring-muted-foreground/30 transition-all">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium">{veto.name}</div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="text-sm font-medium">
                         {veto.teamA.tag} vs {veto.teamB.tag}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {veto.name} - {veto.format.toUpperCase()}
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-muted-foreground uppercase">
-                        {veto.format}
-                      </span>
                       <Badge
                         variant="outline"
                         className={cn(
                           veto.status === "completed" &&
                             "bg-primary/10 text-primary border-primary/30",
                           veto.status === "in_progress" &&
-                            "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
+                            "bg-neutral/10 text-neutral border-neutral/30",
                           veto.status === "waiting" &&
                             "bg-muted text-muted-foreground border-border"
                         )}

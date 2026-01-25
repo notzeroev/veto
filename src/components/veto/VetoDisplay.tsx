@@ -98,9 +98,9 @@ export function VetoDisplay({
             disabled={!canClick}
             className={cn(
               "relative flex flex-col justify-between p-4 border transition-all text-left h-20 overflow-hidden",
-              isBanned && "bg-destructive/20 border-destructive opacity-60",
+              isBanned && "bg-destructive/20 border-destructive",
               isPicked && "bg-constructive/20 border-constructive",
-              isDecider && "bg-yellow-500/20 border-yellow-500",
+              isDecider && "bg-neutral/20 border-neutral",
               !isBanned && !isPicked && !isDecider && isAvailable && canClick &&
                 "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/30 cursor-pointer",
               !isBanned && !isPicked && !isDecider && (!isAvailable || !canClick) &&
@@ -123,7 +123,7 @@ export function VetoDisplay({
                   className={cn(
                     isBanned && "bg-destructive/20 text-destructive border-destructive/30",
                     isPicked && "bg-constructive/20 text-constructive border-constructive/30",
-                    isDecider && "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                    isDecider && "bg-neutral/20 text-neutral border-neutral/30"
                   )}
                 >
                   {isBanned && "BANNED"}

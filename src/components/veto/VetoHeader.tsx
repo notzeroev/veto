@@ -14,7 +14,7 @@ export function VetoHeader({ name, teamAName, teamBName, format }: Props) {
         {teamAName} vs {teamBName}
       </h1>
       <div className="text-sm text-muted-foreground">
-        {name} • {format.toUpperCase()}
+        {name} - {format.toUpperCase()}
       </div>
     </div>
   );
