@@ -6,6 +6,7 @@ import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoHeader } from "@/components/veto/VetoHeader";
 import { CaptainHeader } from "@/components/layout/CaptainHeader";
 import { Header } from "@/components/layout/Header";
+import { Container } from "@/components/layout/Container";
 import { useEffect, use } from "react";
 
 export default function CaptainVetoPage({
@@ -85,22 +86,20 @@ export default function CaptainVetoPage({
   return (
     <>
       <CaptainHeader teamName={myTeamName} />
-      <main className="p-6">
-        <div className="max-w-4xl mx-auto">
-          <VetoHeader
-            name={veto.name}
-            teamAName={veto.teamA.name}
-            teamBName={veto.teamB.name}
-            format={veto.format}
-          />
-          <VetoDisplay
-            veto={veto}
-            userTeam={team}
-            onMapClick={handleMapClick}
-            onSideSelect={handleSideSelect}
-          />
-        </div>
-      </main>
+      <Container className="py-6">
+        <VetoHeader
+          name={veto.name}
+          teamAName={veto.teamA.name}
+          teamBName={veto.teamB.name}
+          format={veto.format}
+        />
+        <VetoDisplay
+          veto={veto}
+          userTeam={team}
+          onMapClick={handleMapClick}
+          onSideSelect={handleSideSelect}
+        />
+      </Container>
     </>
   );
 }

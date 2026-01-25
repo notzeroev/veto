@@ -6,6 +6,7 @@ import { Id } from "../../../../../convex/_generated/dataModel";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoConsole } from "@/components/veto/VetoConsole";
 import { VetoHeader } from "@/components/veto/VetoHeader";
+import { Container } from "@/components/layout/Container";
 import { useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,9 +70,8 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-6xl mx-auto">
-        <VetoHeader
+    <Container className="py-6">
+      <VetoHeader
           name={veto.name}
           teamAName={veto.teamA.name}
           teamBName={veto.teamB.name}
@@ -79,7 +79,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
         />
 
         {/* Two column layout: Left (links + console) | Right (veto display) - 1:2 ratio */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column: Links + Console */}
           <div className="space-y-6">
             {/* Captain Links */}
@@ -171,12 +171,11 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
           </div>
 
           {/* Right Column: Veto Display */}
-          <div className="lg:col-span-2">
+          <div>
             <VetoDisplay veto={veto} userTeam="admin" />
           </div>
         </div>
-      </div>
-    </div>
+    </Container>
   );
 }
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { CreateVetoForm } from "@/components/veto/CreateVetoForm";
+import { Container } from "@/components/layout/Container";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function CreateVetoPage() {
   return (
-    <div className="p-6">
-      <div className="max-w-2xl mx-auto">
+    <Container className="py-6">
+      <div className="max-w-2xl">
         <div className="mb-8">
           <Button
             variant="link"
@@ -20,6 +21,6 @@ export default function CreateVetoPage() {
 
         <CreateVetoForm />
       </div>
-    </div>
+    </Container>
   );
 }
