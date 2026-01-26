@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
+import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function SignInForm() {
-  const { signIn } = useAuthActions();
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,10 +18,35 @@ export function SignInForm() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    formData.set("flow", isSignUp ? "signUp" : "signIn");
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
 
     try {
-      await signIn("password", formData);
+      if (isSignUp) {
+        // Sign up flow: username + email + password
+        const email = formData.get("email") as string;
+
+        const { error: signUpError } = await authClient.signUp.email({
+          email,
+          password,
+          username,
+          name: username, // Use username as name
+        });
+
+        if (signUpError) {
+          throw new Error(signUpError.message || "Sign up failed");
+        }
+      } else {
+        // Sign in flow: username + password
+        const { error: signInError } = await authClient.signIn.username({
+          username,
+          password,
+        });
+
+        if (signInError) {
+          throw new Error(signInError.message || "Sign in failed");
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed");
     } finally {

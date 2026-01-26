@@ -1,7 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { authComponent } from "./auth";
+
+// Helper to get the current authenticated user's ID
+async function getAuthUserId(ctx: QueryCtx | MutationCtx): Promise<string | null> {
+  const user = await authComponent.getAuthUser(ctx);
+  return user?._id ?? null;
+}
 
 // Type for veto actions (now with timestamp and side_select as separate type)
 type VetoAction = {

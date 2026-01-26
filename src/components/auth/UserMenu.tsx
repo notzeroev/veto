@@ -1,14 +1,12 @@
 "use client";
 
-import { useAuthActions } from "@convex-dev/auth/react";
+import { authClient } from "@/lib/auth-client";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -16,8 +14,11 @@ import Link from "next/link";
 import { CaretDown, Plus, RowsIcon, SignOut } from "@phosphor-icons/react";
 
 export function UserMenu() {
-  const { signOut } = useAuthActions();
   const user = useQuery(api.users.current);
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+  };
 
   if (!user) return null;
 
@@ -44,7 +45,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
-          onClick={() => signOut()}
+          onClick={handleSignOut}
           className="cursor-pointer"
         >
           <SignOut className="size-4" />

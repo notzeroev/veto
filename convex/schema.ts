@@ -1,31 +1,11 @@
 import { defineSchema, defineTable } from "convex/server";
-import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 const schema = defineSchema({
-  ...authTables,
-
-  // Custom users table - extends authTables.users with username
-  users: defineTable({
-    // Default auth fields
-    name: v.optional(v.string()),
-    image: v.optional(v.string()),
-    email: v.optional(v.string()),
-    emailVerificationTime: v.optional(v.number()),
-    phone: v.optional(v.string()),
-    phoneVerificationTime: v.optional(v.number()),
-    isAnonymous: v.optional(v.boolean()),
-    // Custom field - required unique username
-    username: v.string(),
-  })
-    .index("email", ["email"])
-    .index("phone", ["phone"])
-    .index("by_username", ["username"]),
-
   // Veto sessions created by admins
   vetos: defineTable({
-    // Admin who created this veto
-    adminId: v.id("users"),
+    // Admin who created this veto (references BetterAuth user ID string)
+    adminId: v.string(),
 
     // Veto configuration
     name: v.string(), // e.g., "Grand Finals - Team A vs Team B"
