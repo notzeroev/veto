@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "vet0",
-  description: "Simple, real-time map veto for competitive matches.",
+  description: "Simple, real-time map veto for VALORANT",
 };
 
 export default async function RootLayout({

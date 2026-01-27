@@ -1,80 +1,64 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useConvexAuth } from "convex/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { Container } from "@/components/layout/Container";
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace("/admin");
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   return (
     <>
       <PublicHeader />
-      <main className="min-h-screen flex flex-col items-center justify-center p-6">
-        <div className="text-center max-w-2xl">
-          <h1 className="text-5xl font-bold mb-4">vet0</h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Simple, real-time map veto for competitive matches.
-            <br />
-            No sign-up required for players.
-          </p>
+      <Container className="py-6 min-h-[calc(100vh-8rem)] flex items-center justify-center">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl font-bold tracking-tight mb-10">Simple, real-time map veto for VALORANT</h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isLoading ? (
-              <div className="text-muted-foreground">Loading...</div>
-            ) : isAuthenticated ? (
-              <Button
-                nativeButton={false}
-                render={<Link href="/admin">Go to Dashboard</Link>}
-                size="lg"
-                className="px-8 h-12"
-              />
-            ) : (
-              <Button
-                nativeButton={false}
-                render={<Link href="/admin">Get Started</Link>}
-                size="lg"
-                className="px-8 h-12"
-              />
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+            <div className="border border-destructive/40 bg-destructive/5 p-4 text-left">
+              <h3 className="font-semibold text-destructive mb-1">Real-time</h3>
+              <p className="text-xs text-muted-foreground">
+                Instant updates. No refreshes.
+              </p>
+            </div>
+            <div className="border border-constructive/40 bg-constructive/5 p-4 text-left">
+              <h3 className="font-semibold text-constructive mb-1">Simple</h3>
+              <p className="text-xs text-muted-foreground">
+                Share links. No accounts.
+              </p>
+            </div>
+            <div className="border border-neutral/40 bg-neutral/5 p-4 text-left">
+              <h3 className="font-semibold text-neutral mb-1">Flexible</h3>
+              <p className="text-xs text-muted-foreground">
+                Custom map pools. BO-X.
+              </p>
+            </div>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <Card size="sm">
-              <CardHeader>
-                <CardTitle>Real-time</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Instant updates for all participants. No refresh needed.
-                </p>
-              </CardContent>
-            </Card>
-            <Card size="sm">
-              <CardHeader>
-                <CardTitle>Simple</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Captains just click a link. No accounts, no downloads.
-                </p>
-              </CardContent>
-            </Card>
-            <Card size="sm">
-              <CardHeader>
-                <CardTitle>Flexible</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  BO1, BO3, or BO5. Customize your map pool.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Button
+            variant="outline"
+            size="lg"
+            className="text-lg p-6"
+            nativeButton={false}
+            render={
+              <Link href="/admin/create">
+                Get started
+              </Link>
+            }
+          />
         </div>
-      </main>
+      </Container>
     </>
   );
 }
