@@ -81,7 +81,7 @@ export function VetoBanner({
         <>
           <div className="text-primary font-semibold">Veto Complete</div>
           <div className="text-sm text-muted-foreground mt-1">
-            Maps to play: {pickedMaps.join(", ")}
+            {pickedMaps.join(", ")}
           </div>
         </>
       )}
@@ -90,7 +90,7 @@ export function VetoBanner({
       {state === "side_select_active" && onSideSelect && (
         <>
           <div className="font-medium mb-3">
-            Choose your side
+            Select a side
             {veto.pendingSideSelectionMap && (
               <span className="text-muted-foreground ml-2">
                 on {veto.pendingSideSelectionMap}
@@ -119,7 +119,7 @@ export function VetoBanner({
       {/* Side Selection - Waiting */}
       {state === "side_select_waiting" && (
         <div className="text-muted-foreground">
-          {currentTeamTag} is choosing their side
+          {currentTeamTag} is selecting a side
           {veto.pendingSideSelectionMap && ` on ${veto.pendingSideSelectionMap}`}...
         </div>
       )}
@@ -127,10 +127,10 @@ export function VetoBanner({
       {/* Ban/Pick - Active (your turn) */}
       {state === "turn_active" && (
         <>
-          <div className="text-primary font-semibold">It&apos;s your turn!</div>
+          <div className="text-primary font-semibold">It's your turn.</div>
           <div className="text-sm text-muted-foreground mt-1">
-            {veto.currentPhase === "ban" && "Select a map to ban"}
-            {veto.currentPhase === "pick" && "Select a map to pick"}
+            {veto.currentPhase === "ban" && "Ban a map"}
+            {veto.currentPhase === "pick" && "Pick a map"}
           </div>
         </>
       )}

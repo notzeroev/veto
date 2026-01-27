@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 
 // Type for action with timestamp
 type VetoActionFull = {
@@ -19,11 +19,9 @@ type Props = {
   veto: Doc<"vetos">;
   className?: string;
   onReset?: () => void;
-  onDelete?: () => void;
 };
 
-export function VetoConsole({ veto, className = "", onReset, onDelete }: Props) {
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+export function VetoConsole({ veto, className = "", onReset }: Props) {
   const teamATag = veto.teamA.tag;
   const teamBTag = veto.teamB.tag;
 
@@ -50,43 +48,11 @@ export function VetoConsole({ veto, className = "", onReset, onDelete }: Props) 
           <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Console
           </CardTitle>
-          {(onReset || onDelete) && (
-            <div className="flex items-center gap-2">
-              {onReset && veto.status !== "waiting" && (
-                <Button variant="outline" size="sm" onClick={onReset}>
-                  Reset
-                </Button>
-              )}
-              {onDelete && !showDeleteConfirm && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  Delete
-                </Button>
-              )}
-              {onDelete && showDeleteConfirm && (
-                <>
-                  <span className="text-xs text-muted-foreground">Sure?</span>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={onDelete}
-                  >
-                    Yes
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(false)}
-                  >
-                    No
-                  </Button>
-                </>
-              )}
-            </div>
+          {onReset && veto.status !== "waiting" && (
+            <Button variant="destructive" size="sm" onClick={onReset}>
+              <ArrowCounterClockwise className="size-4" />
+              Reset
+            </Button>
           )}
         </div>
       </CardHeader>

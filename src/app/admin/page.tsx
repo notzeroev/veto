@@ -1,17 +1,26 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/layout/Container";
 import { cn } from "@/lib/utils";
-import { PlusIcon } from "@phosphor-icons/react";
+import { PlusIcon, Trash } from "@phosphor-icons/react";
 
 export default function AdminDashboard() {
   const vetos = useQuery(api.vetos.listMyVetos);
+  const deleteVeto = useMutation(api.vetos.deleteVeto);
+  const [confirmingDelete, setConfirmingDelete] = useState<Id<"vetos"> | null>(null);
+
+  const handleDelete = async (vetoId: Id<"vetos">) => {
+    await deleteVeto({ vetoId });
+    setConfirmingDelete(null);
+  };
 
   return (
     <Container className="py-6">
@@ -47,27 +56,53 @@ export default function AdminDashboard() {
         {vetos && vetos.length > 0 && (
           <div className="space-y-3">
             {vetos.map((veto) => (
-              <Link
-                key={veto._id}
-                href={`/admin/veto/${veto._id}`}
-                className="block"
-              >
-                <Card className="p-4 hover:ring-muted-foreground/30 transition-all">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium">
-                        {veto.teamA.tag} vs {veto.teamB.tag}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {veto.name} - {veto.format.toUpperCase()}
-                      </div>
+              <Card key={veto._id} className="p-4 hover:ring-muted-foreground/30 transition-all">
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={`/admin/veto/${veto._id}`}
+                    className="flex-1"
+                  >
+                    <div className="text-sm font-medium">
+                      {veto.teamA.tag} vs {veto.teamB.tag}
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {veto.name} - {veto.format.toUpperCase()}
+                    </div>
+                  </Link>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground">
                       {veto.status.replace("_", " ")}
-                    </div>
+                    </span>
+                    {confirmingDelete === veto._id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Sure?</span>
+                        <Button
+                          variant="destructive"
+                          size="xs"
+                          onClick={() => handleDelete(veto._id)}
+                        >
+                          Yes
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={() => setConfirmingDelete(null)}
+                        >
+                          No
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        size="icon-sm"
+                        onClick={() => setConfirmingDelete(veto._id)}
+                      >
+                        <Trash className="size-4" />
+                      </Button>
+                    )}
                   </div>
-                </Card>
-              </Link>
+                </div>
+              </Card>
             ))}
           </div>
         )}

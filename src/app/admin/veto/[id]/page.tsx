@@ -18,7 +18,6 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   const veto = useQuery(api.vetos.getAsAdmin, { vetoId });
   const startVeto = useMutation(api.vetos.startVeto);
   const resetVeto = useMutation(api.vetos.resetVeto);
-  const deleteVeto = useMutation(api.vetos.deleteVeto);
 
   const [copiedTeam, setCopiedTeam] = useState<"teamA" | "teamB" | null>(null);
   const [copiedToken, setCopiedToken] = useState<"teamA" | "teamB" | null>(null);
@@ -65,11 +64,6 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
     await resetVeto({ vetoId });
   };
 
-  const handleDelete = async () => {
-    await deleteVeto({ vetoId });
-    window.location.href = "/admin";
-  };
-
   return (
     <Container className="py-6">
       <VetoHeader
@@ -103,7 +97,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                     {copiedToken === "teamA" ? "Copied!" : veto.teamA.token}
                   </code>
                   <Button
-                    variant="outline"
+                    variant="neutral"
                     size="icon"
                     onClick={() => copyLink("teamA")}
                   >
@@ -128,7 +122,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                     {copiedToken === "teamB" ? "Copied!" : veto.teamB.token}
                   </code>
                   <Button
-                    variant="outline"
+                    variant="neutral"
                     size="icon"
                     onClick={() => copyLink("teamB")}
                   >
@@ -139,7 +133,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
             </Card>
 
             {/* Console */}
-            <VetoConsole veto={veto} onReset={handleReset} onDelete={handleDelete} />
+            <VetoConsole veto={veto} onReset={handleReset} />
           </div>
 
           {/* Right Column: Banner + Veto Display */}
