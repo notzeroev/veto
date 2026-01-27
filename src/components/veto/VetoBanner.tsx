@@ -81,7 +81,7 @@ export function VetoBanner({
         <>
           <div className="text-primary font-semibold">Veto Complete</div>
           <div className="text-sm text-muted-foreground mt-1">
-            {pickedMaps.join(", ")}
+            Maps to play: {pickedMaps.join(", ")}
           </div>
         </>
       )}

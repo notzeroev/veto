@@ -143,7 +143,7 @@ export function VetoDisplay({
             {/* Row 2: side selection + team that picked/banned */}
             <div className="relative flex justify-between items-center text-xs text-muted-foreground">
               <div>
-                {sideSelection ? `${getTeamTag(sideSelection.team)} ${sideSelection.side}` : "\u00A0"}
+                {sideSelection?.side ? `${getTeamTag(sideSelection.team)} ${sideSelection.side.charAt(0).toUpperCase() + sideSelection.side.slice(1)}` : "\u00A0"}
               </div>
               <div>
                 {action && action.team !== "none" ? getTeamTag(action.team) : "\u00A0"}
