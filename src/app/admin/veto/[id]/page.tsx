@@ -84,8 +84,8 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
           {/* Left Column: Links + Console */}
           <div className="space-y-6">
             {/* Captain Links */}
-            <Card>
-              <CardContent className="space-y-3">
+            <Card className="h-28">
+              <CardContent className="h-full flex flex-col justify-between">
                 {/* Team A */}
                 <div className="flex items-center gap-3">
                   <span

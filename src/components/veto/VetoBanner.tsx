@@ -102,7 +102,6 @@ export function VetoBanner({
               variant="outline"
               size="sm"
               onClick={() => onSideSelect("attack")}
-              className="bg-orange-500/10 border-orange-500/40 hover:bg-orange-500/20 text-orange-400"
             >
               Attack
             </Button>
@@ -110,7 +109,6 @@ export function VetoBanner({
               variant="outline"
               size="sm"
               onClick={() => onSideSelect("defense")}
-              className="bg-blue-500/10 border-blue-500/40 hover:bg-blue-500/20 text-blue-400"
             >
               Defense
             </Button>

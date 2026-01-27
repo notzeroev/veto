@@ -97,7 +97,7 @@ export function VetoDisplay({
             onClick={() => canClick && onMapClick?.(map)}
             disabled={!canClick}
             className={cn(
-              "relative flex flex-col justify-between p-4 border transition-all text-left h-20 overflow-hidden",
+              "group relative flex flex-col justify-between p-4 border transition-all text-left h-25 overflow-hidden",
               isBanned && "bg-destructive/20 border-destructive",
               isPicked && "bg-constructive/20 border-constructive",
               isDecider && "bg-neutral/20 border-neutral",
@@ -110,8 +110,15 @@ export function VetoDisplay({
           >
             {/* Background image layer */}
             <div
-              className="absolute inset-0 bg-cover bg-top opacity-15 grayscale pointer-events-none"
-              style={{ backgroundImage: `url(/maps/${map.toLowerCase()}.webp)` }}
+              className={cn(
+                "absolute top-0 bottom-0 right-0 w-6/7 bg-cover bg-center opacity-40 pointer-events-none transition-all duration-300",
+                canClick && "group-hover:opacity-80 group-hover:scale-110"
+              )}
+              style={{
+                backgroundImage: `url(/maps/${map.toLowerCase()}.webp)`,
+                maskImage: "linear-gradient(to right, transparent, black)",
+                WebkitMaskImage: "linear-gradient(to right, transparent, black)",
+              }}
             />
 
             {/* Row 1: map name + status badge */}

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { PlusIcon } from "@phosphor-icons/react";
 
 const DEFAULT_MAPS = [
   "Ascent",
@@ -38,9 +39,16 @@ export function CreateVetoForm() {
   const [error, setError] = useState<string | null>(null);
 
   const toggleMap = (map: string) => {
-    setSelectedMaps((prev) =>
-      prev.includes(map) ? prev.filter((m) => m !== map) : [...prev, map]
-    );
+    setSelectedMaps((prev) => {
+      if (prev.includes(map)) {
+        return prev.filter((m) => m !== map);
+      }
+      // Don't allow selecting more than 7 maps
+      if (prev.length >= 7) {
+        return prev;
+      }
+      return [...prev, map];
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,8 +72,8 @@ export function CreateVetoForm() {
       setError("Team B tag must be 1-5 characters");
       return;
     }
-    if (selectedMaps.length < 7) {
-      setError("Please select at least 7 maps");
+    if (selectedMaps.length !== 7) {
+      setError("Please select exactly 7 maps");
       return;
     }
 
@@ -109,9 +117,12 @@ export function CreateVetoForm() {
             <Button
               key={f}
               type="button"
-              variant={format === f ? "default" : "outline"}
+              variant="outline"
               onClick={() => setFormat(f)}
-              className="flex-1"
+              className={cn(
+                "flex-1",
+                format === f ? "bg-neutral/20! border-neutral!" : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!"
+              )}
             >
               {f.toUpperCase()}
             </Button>
@@ -170,24 +181,29 @@ export function CreateVetoForm() {
 
       <div className="space-y-2">
         <Label>
-          Map Pool ({selectedMaps.length} selected, minimum 7)
+          Map Pool ({selectedMaps.length}/7 selected)
         </Label>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          {DEFAULT_MAPS.map((map) => (
-            <Button
-              key={map}
-              type="button"
-              variant="outline"
-              onClick={() => toggleMap(map)}
-              className={cn(
-                "text-sm",
-                selectedMaps.includes(map) &&
-                  "bg-primary/10 border-primary/40 text-primary hover:bg-primary/20"
-              )}
-            >
-              {map}
-            </Button>
-          ))}
+          {DEFAULT_MAPS.map((map) => {
+            const isSelected = selectedMaps.includes(map);
+
+            return (
+              <Button
+                key={map}
+                type="button"
+                variant="outline"
+                onClick={() => toggleMap(map)}
+                className={cn(
+                  "h-9 text-sm",
+                  isSelected
+                    ? "bg-neutral/20! border-neutral!"
+                    : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!"
+                )}
+              >
+                {map}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
@@ -200,8 +216,10 @@ export function CreateVetoForm() {
       <Button
         type="submit"
         disabled={loading}
+        variant="constructive"
         className="w-full h-10"
       >
+        <PlusIcon className="size-4" />
         {loading ? "Creating..." : "Create Veto"}
       </Button>
     </form>

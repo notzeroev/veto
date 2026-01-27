@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/layout/Container";
 import { cn } from "@/lib/utils";
+import { PlusIcon } from "@phosphor-icons/react";
 
 export default function AdminDashboard() {
   const vetos = useQuery(api.vetos.listMyVetos);
@@ -19,8 +20,14 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">My Vetos</h1>
           <Button
+            variant="constructive"
             nativeButton={false}
-            render={<Link href="/admin/create">New Veto</Link>}
+            render={
+              <Link href="/admin/create">
+                <PlusIcon className="size-4" />
+                New Veto
+              </Link>
+            }
           />
         </div>
 
@@ -56,19 +63,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          veto.status === "completed" &&
-                            "bg-primary/10 text-primary border-primary/30",
-                          veto.status === "in_progress" &&
-                            "bg-neutral/10 text-neutral border-neutral/30",
-                          veto.status === "waiting" &&
-                            "bg-muted text-muted-foreground border-border"
-                        )}
-                      >
-                        {veto.status.replace("_", " ")}
-                      </Badge>
+                      {veto.status.replace("_", " ")}
                     </div>
                   </div>
                 </Card>
