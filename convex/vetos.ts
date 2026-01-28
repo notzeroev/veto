@@ -29,18 +29,20 @@ function generateToken(): string {
 }
 
 // Default Valorant map pool
+// Maps in release order
 const DEFAULT_MAP_POOL = [
-  "Ascent",
   "Haven",
-  "Icebox",
-  "Split",
-  "Sunset",
-  "Lotus",
-  "Pearl",
   "Bind",
+  "Split",
+  "Ascent",
+  "Icebox",
   "Breeze",
   "Fracture",
+  "Pearl",
+  "Lotus",
+  "Sunset",
   "Abyss",
+  "Corrode"
 ];
 
 // Veto sequence definitions for each format

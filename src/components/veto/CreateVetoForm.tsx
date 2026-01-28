@@ -10,18 +10,31 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "@phosphor-icons/react";
 
+// Maps in release order
 const DEFAULT_MAPS = [
-  "Ascent",
   "Haven",
-  "Icebox",
-  "Split",
-  "Sunset",
-  "Lotus",
-  "Pearl",
   "Bind",
+  "Split",
+  "Ascent",
+  "Icebox",
   "Breeze",
   "Fracture",
+  "Pearl",
+  "Lotus",
+  "Sunset",
   "Abyss",
+  "Corrode"
+];
+
+// Currently active maps in the rotation
+const ACTIVE_MAPS = [
+  "Haven",
+  "Bind",
+  "Split",
+  "Breeze",
+  "Pearl",
+  "Abyss",
+  "Corrode"
 ];
 
 export function CreateVetoForm() {
@@ -34,7 +47,7 @@ export function CreateVetoForm() {
   const [teamATag, setTeamATag] = useState("");
   const [teamBName, setTeamBName] = useState("");
   const [teamBTag, setTeamBTag] = useState("");
-  const [selectedMaps, setSelectedMaps] = useState<string[]>(DEFAULT_MAPS.slice(0, 7));
+  const [selectedMaps, setSelectedMaps] = useState<string[]>(ACTIVE_MAPS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
