@@ -14,6 +14,12 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "vet0",
   description: "Simple, real-time map veto for VALORANT",
+  icons: {
+    icon: [
+      { url: "/favicon32.png", sizes: "32x32" },
+      { url: "/favicon64.png", sizes: "64x64" },
+    ],
+  },
 };
 
 export default async function RootLayout({
