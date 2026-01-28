@@ -19,7 +19,7 @@ export function Header({ children }: HeaderProps) {
           href={isAuthenticated ? "/admin" : "/"}
           className="text-xl font-bold hover:text-muted-foreground transition-colors"
         >
-          vet0
+          vet0<sup className="text-xs ml-1">beta</sup>
         </Link>
         {children}
       </Container>
