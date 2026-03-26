@@ -5,6 +5,7 @@ import { ConvexClientProvider } from "@/utils/convex/ConvexClientProvider";
 import { getToken } from "@/lib/auth-server";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -33,7 +34,7 @@ export default async function RootLayout({
     <html lang="en" className={cn("dark", jetbrainsMono.variable)}>
       <body className="min-h-screen bg-background text-foreground">
         <ConvexClientProvider initialToken={token}>
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </ConvexClientProvider>
       </body>
     </html>

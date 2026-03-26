@@ -8,6 +8,7 @@ const schema = defineSchema({
     adminId: v.string(),
 
     // Veto configuration
+    game: v.optional(v.literal("valorant")),
     name: v.string(), // e.g., "Grand Finals - Team A vs Team B"
     format: v.union(v.literal("bo1"), v.literal("bo3"), v.literal("bo5")),
     mapPool: v.array(v.string()), // Available maps to pick/ban from

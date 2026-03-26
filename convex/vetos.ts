@@ -28,22 +28,12 @@ function generateToken(): string {
   return result;
 }
 
-// Default Valorant map pool
-// Maps in release order
-const DEFAULT_MAP_POOL = [
-  "Haven",
-  "Bind",
-  "Split",
-  "Ascent",
-  "Icebox",
-  "Breeze",
-  "Fracture",
-  "Pearl",
-  "Lotus",
-  "Sunset",
-  "Abyss",
-  "Corrode"
-];
+// Default map pools per game (active rotation maps)
+const DEFAULT_MAP_POOLS = {
+  valorant: [
+    "Haven", "Bind", "Split", "Breeze", "Pearl", "Abyss", "Corrode",
+  ],
+} as const;
 
 // Veto sequence definitions for each format
 // teamOffset: 0 = first pick team, 1 = other team
@@ -135,6 +125,7 @@ function getUsedMaps(actions: VetoAction[]): string[] {
 
 export const create = mutation({
   args: {
+    game: v.literal("valorant"),
     name: v.string(),
     format: v.union(v.literal("bo1"), v.literal("bo3"), v.literal("bo5")),
     teamAName: v.string(),
@@ -165,7 +156,7 @@ export const create = mutation({
       throw new Error("Team B tag must be 1-5 characters");
     }
 
-    const mapPool = args.mapPool ?? DEFAULT_MAP_POOL;
+    const mapPool = args.mapPool ?? DEFAULT_MAP_POOLS[args.game];
 
     if (mapPool.length < 7) {
       throw new Error("Map pool must have at least 7 maps");
@@ -173,6 +164,7 @@ export const create = mutation({
 
     const vetoId = await ctx.db.insert("vetos", {
       adminId: userId,
+      game: args.game,
       name: args.name,
       format: args.format,
       mapPool,
@@ -680,6 +672,23 @@ export const clearAllVetos = mutation({
     }
 
     return { deleted: vetos.length };
+  },
+});
+
+// ============= MIGRATIONS =============
+
+export const backfillGame = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const vetos = await ctx.db.query("vetos").collect();
+    let updated = 0;
+    for (const veto of vetos) {
+      if (!(veto as any).game) {
+        await ctx.db.patch(veto._id, { game: "valorant" as const });
+        updated++;
+      }
+    }
+    return { updated };
   },
 });
 

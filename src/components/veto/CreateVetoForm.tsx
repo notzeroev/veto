@@ -9,47 +9,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PlusIcon } from "@phosphor-icons/react";
-
-// Maps in release order
-const DEFAULT_MAPS = [
-  "Haven",
-  "Bind",
-  "Split",
-  "Ascent",
-  "Icebox",
-  "Breeze",
-  "Fracture",
-  "Pearl",
-  "Lotus",
-  "Sunset",
-  "Abyss",
-  "Corrode"
-];
-
-// Currently active maps in the rotation
-const ACTIVE_MAPS = [
-  "Haven",
-  "Bind",
-  "Split",
-  "Breeze",
-  "Pearl",
-  "Abyss",
-  "Corrode"
-];
+import { MAP_POOLS, type Game } from "@/lib/mapPools";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function CreateVetoForm() {
   const router = useRouter();
   const createVeto = useMutation(api.vetos.create);
 
+  const [game, setGame] = useState<Game>("valorant");
   const [name, setName] = useState("");
   const [format, setFormat] = useState<"bo1" | "bo3" | "bo5">("bo3");
   const [teamAName, setTeamAName] = useState("");
   const [teamATag, setTeamATag] = useState("");
   const [teamBName, setTeamBName] = useState("");
   const [teamBTag, setTeamBTag] = useState("");
-  const [selectedMaps, setSelectedMaps] = useState<string[]>(ACTIVE_MAPS);
+  const [selectedMaps, setSelectedMaps] = useState<string[]>(
+    MAP_POOLS[game].active,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const mapPool = MAP_POOLS[game];
 
   const toggleMap = (map: string) => {
     setSelectedMaps((prev) => {
@@ -93,6 +77,7 @@ export function CreateVetoForm() {
     setLoading(true);
     try {
       const vetoId = await createVeto({
+        game,
         name,
         format,
         teamAName,
@@ -124,6 +109,38 @@ export function CreateVetoForm() {
       </div>
 
       <div className="space-y-2">
+        <Label>Game</Label>
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setGame("valorant")}
+            className={cn(
+              "flex-1",
+              game === "valorant"
+                ? "bg-neutral/20! border-neutral!"
+                : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!",
+            )}
+          >
+            VALORANT
+          </Button>
+          <Tooltip>
+            <TooltipTrigger className="flex-1" render={<span />}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled
+                className="w-full opacity-50 cursor-not-allowed pointer-events-none"
+              >
+                CS2
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Coming soon :)</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+
+      <div className="space-y-2">
         <Label>Format</Label>
         <div className="flex gap-3">
           {(["bo1", "bo3", "bo5"] as const).map((f) => (
@@ -134,7 +151,9 @@ export function CreateVetoForm() {
               onClick={() => setFormat(f)}
               className={cn(
                 "flex-1",
-                format === f ? "bg-neutral/20! border-neutral!" : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!"
+                format === f
+                  ? "bg-neutral/20! border-neutral!"
+                  : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!",
               )}
             >
               {f.toUpperCase()}
@@ -193,11 +212,9 @@ export function CreateVetoForm() {
       </div>
 
       <div className="space-y-2">
-        <Label>
-          Map Pool ({selectedMaps.length}/7 selected)
-        </Label>
+        <Label>Map Pool ({selectedMaps.length}/7 selected)</Label>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          {DEFAULT_MAPS.map((map) => {
+          {mapPool.maps.map((map) => {
             const isSelected = selectedMaps.includes(map);
 
             return (
@@ -210,7 +227,7 @@ export function CreateVetoForm() {
                   "h-9 text-sm",
                   isSelected
                     ? "bg-neutral/20! border-neutral!"
-                    : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!"
+                    : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!",
                 )}
               >
                 {map}
