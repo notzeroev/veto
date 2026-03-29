@@ -39,11 +39,7 @@ type Props = {
 
 const HOLD_DURATION_MS = 800;
 
-export function VetoDisplay({
-  veto,
-  userTeam,
-  onMapClick,
-}: Props) {
+export function VetoDisplay({ veto, userTeam, onMapClick }: Props) {
   const [holdingMap, setHoldingMap] = useState<string | null>(null);
   const [holdProgress, setHoldProgress] = useState(0);
   const [submittingMap, setSubmittingMap] = useState<string | null>(null);
@@ -53,7 +49,9 @@ export function VetoDisplay({
 
   // Get used maps (ban, pick, decider - not side_select)
   const usedMaps = veto.actions
-    .filter((a) => a.type === "ban" || a.type === "pick" || a.type === "decider")
+    .filter(
+      (a) => a.type === "ban" || a.type === "pick" || a.type === "decider",
+    )
     .map((a) => a.map);
   const availableMaps = veto.mapPool.filter((m) => !usedMaps.includes(m));
 
@@ -82,7 +80,9 @@ export function VetoDisplay({
   // Get map status (for display)
   const getMapAction = (map: string) => {
     return veto.actions.find(
-      (a) => (a.type === "ban" || a.type === "pick" || a.type === "decider") && a.map === map
+      (a) =>
+        (a.type === "ban" || a.type === "pick" || a.type === "decider") &&
+        a.map === map,
     );
   };
 
@@ -168,15 +168,23 @@ export function VetoDisplay({
         const isAvailable = availableMaps.includes(map);
 
         const canClick =
-          canAct &&
-          isAvailable &&
-          isActionablePhase &&
-          !submittingMap;
+          canAct && isAvailable && isActionablePhase && !submittingMap;
         const isHolding = holdingMap === map;
-        const holdOverlayTone =
-          veto.currentPhase === "ban" ? "bg-destructive/20" : "bg-constructive/20";
-        const holdOverlayProgress = isHolding ? holdProgress : submittingMap === map ? 1 : 0;
-        const holdOverlayTranslate = -100 + holdOverlayProgress * 100;
+        const holdStrokeColor =
+          veto.currentPhase === "ban"
+            ? "var(--color-destructive)"
+            : "var(--color-constructive)";
+        const rawProgress = isHolding
+          ? holdProgress
+          : submittingMap === map
+            ? 1
+            : 0;
+        // Mostly linear, gentle ease-out in the last ~15%
+        const holdStrokeProgress =
+          rawProgress < 0.85
+            ? rawProgress
+            : 0.85 + 0.15 * (1 - Math.pow(1 - (rawProgress - 0.85) / 0.15, 2));
+        const isHoldActive = holdStrokeProgress > 0;
 
         return (
           <button
@@ -195,45 +203,83 @@ export function VetoDisplay({
             }}
             onPointerCancel={cancelHold}
             disabled={!canClick}
+            style={{
+              borderColor: isHolding || submittingMap === map ? "transparent" : undefined,
+            }}
             className={cn(
               "group relative flex h-25 select-none flex-col justify-between overflow-hidden border p-4 text-left transition-all touch-none",
               isBanned && "bg-destructive/20 border-destructive",
               isPicked && "bg-constructive/20 border-constructive",
               isDecider && "bg-neutral/20 border-neutral",
-              !isBanned && !isPicked && !isDecider && isAvailable && canClick &&
+              !isBanned &&
+                !isPicked &&
+                !isDecider &&
+                isAvailable &&
+                canClick &&
                 "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/30 cursor-pointer",
-              !isBanned && !isPicked && !isDecider && (!isAvailable || !canClick) &&
+              !isBanned &&
+                !isPicked &&
+                !isDecider &&
+                (!isAvailable || !canClick) &&
                 "bg-card border-border",
-              isHolding && "scale-[0.99]",
-              !canClick && "cursor-default"
+              !canClick && "cursor-default",
             )}
           >
-            {/* Hold progress fill */}
+            {/* Hold progress — borders fill left to right */}
             {!action && (canClick || submittingMap === map) && (
-              <div
-                className={cn(
-                  "pointer-events-none absolute inset-y-0 left-0 w-[130%] transition-[transform,opacity] duration-75 ease-out",
-                  holdOverlayTone
-                )}
-                style={{
-                  opacity: holdOverlayProgress > 0 ? 1 : 0,
-                  transform: `translateX(${holdOverlayTranslate}%)`,
-                  maskImage: "linear-gradient(to right, black 0%, black 78%, transparent 100%)",
-                  WebkitMaskImage: "linear-gradient(to right, black 0%, black 78%, transparent 100%)",
-                }}
-              />
+              <>
+                {/* Left vertical — instant */}
+                <div
+                  className="pointer-events-none absolute top-0 left-0 w-px h-full"
+                  style={{
+                    opacity: isHoldActive ? 1 : 0,
+                    backgroundColor: holdStrokeColor,
+                  }}
+                />
+                {/* Top horizontal — fills left to right */}
+                <div
+                  className="pointer-events-none absolute top-0 left-0 h-px"
+                  style={{
+                    opacity: isHoldActive ? 1 : 0,
+                    width: `${holdStrokeProgress * 100}%`,
+                    backgroundColor: holdStrokeColor,
+                  }}
+                />
+                {/* Bottom horizontal — fills left to right */}
+                <div
+                  className="pointer-events-none absolute bottom-0 left-0 h-px"
+                  style={{
+                    opacity: isHoldActive ? 1 : 0,
+                    width: `${holdStrokeProgress * 100}%`,
+                    backgroundColor: holdStrokeColor,
+                  }}
+                />
+                {/* Right vertical — appears when progress completes */}
+                <div
+                  className="pointer-events-none absolute top-0 right-0 w-px h-full"
+                  style={{
+                    opacity: holdStrokeProgress >= 1 ? 1 : 0,
+                    backgroundColor: holdStrokeColor,
+                  }}
+                />
+              </>
             )}
 
             {/* Background image layer */}
             <div
               className={cn(
                 "absolute top-0 bottom-0 right-0 w-6/7 bg-cover bg-center opacity-40 pointer-events-none transition-all duration-300",
-                canClick && "group-hover:opacity-80 group-hover:scale-110"
+                canClick &&
+                  !isHoldActive &&
+                  "group-hover:opacity-80 group-hover:scale-110",
               )}
               style={{
                 backgroundImage: `url(/maps/${map.toLowerCase()}.webp)`,
                 maskImage: "linear-gradient(to right, transparent, black)",
-                WebkitMaskImage: "linear-gradient(to right, transparent, black)",
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent, black)",
+                opacity: isHoldActive ? 0.28 : undefined,
+                transform: isHoldActive ? "scale(1.02)" : undefined,
               }}
             />
 
@@ -244,9 +290,11 @@ export function VetoDisplay({
                 <Badge
                   variant="outline"
                   className={cn(
-                    isBanned && "bg-destructive/20 text-destructive border-destructive/30",
-                    isPicked && "bg-constructive/20 text-constructive border-constructive/30",
-                    isDecider && "bg-neutral/20 text-neutral border-neutral/30"
+                    isBanned &&
+                      "bg-destructive/20 text-destructive border-destructive/30",
+                    isPicked &&
+                      "bg-constructive/20 text-constructive border-constructive/30",
+                    isDecider && "bg-neutral/20 text-neutral border-neutral/30",
                   )}
                 >
                   {isBanned && "BANNED"}
@@ -259,10 +307,14 @@ export function VetoDisplay({
             {/* Row 2: side selection + team that picked/banned */}
             <div className="relative flex justify-between items-center text-xs text-muted-foreground">
               <div>
-                {sideSelection?.side ? `${getTeamTag(sideSelection.team)} ${sideSelection.side.charAt(0).toUpperCase() + sideSelection.side.slice(1)}` : "\u00A0"}
+                {sideSelection?.side
+                  ? `${getTeamTag(sideSelection.team)} ${sideSelection.side.charAt(0).toUpperCase() + sideSelection.side.slice(1)}`
+                  : "\u00A0"}
               </div>
               <div>
-                {action && action.team !== "none" ? getTeamTag(action.team) : "\u00A0"}
+                {action && action.team !== "none"
+                  ? getTeamTag(action.team)
+                  : "\u00A0"}
               </div>
             </div>
           </button>
