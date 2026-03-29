@@ -1,19 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, Check, Copy } from "@phosphor-icons/react";
 
-// Type for action with timestamp
-type VetoActionFull = {
-  type: "ban" | "pick" | "decider" | "side_select";
-  map: string;
-  team: "teamA" | "teamB" | "none";
-  side?: "attack" | "defense";
-  timestamp: number;
-};
+type VetoAction = Doc<"vetos">["actions"][number];
 
 type Props = {
   veto: Doc<"vetos">;
@@ -22,6 +16,7 @@ type Props = {
 };
 
 export function VetoConsole({ veto, className = "", onReset }: Props) {
+  const [copied, setCopied] = useState(false);
   const teamATag = veto.teamA.tag;
   const teamBTag = veto.teamB.tag;
 
@@ -41,6 +36,30 @@ export function VetoConsole({ veto, className = "", onReset }: Props) {
     });
   };
 
+  const getActionLabel = (action: VetoAction) => {
+    return action.type === "side_select" ? "SELECT" : action.type.toUpperCase();
+  };
+
+  const getActionArgument = (action: VetoAction) => {
+    if (action.type !== "side_select") return action.map;
+    return action.side === "attack" ? "Attack" : "Defense";
+  };
+
+  const getClipboardText = () => {
+    return veto.actions.map((action) => {
+      const teamDisplay = action.team === "none" ? "" : getTeamTag(action.team);
+      return [teamDisplay, getActionLabel(action), getActionArgument(action)]
+        .filter(Boolean)
+        .join(" ");
+    }).join("\n");
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(getClipboardText());
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Card className={cn("bg-card/50", className)}>
       <CardHeader className="pb-2">
@@ -48,12 +67,25 @@ export function VetoConsole({ veto, className = "", onReset }: Props) {
           <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Console
           </CardTitle>
-          {onReset && veto.status !== "waiting" && (
-            <Button variant="destructive" size="sm" onClick={onReset}>
-              <ArrowCounterClockwise className="size-4" />
-              Reset
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {veto.status === "completed" && (
+              <Button
+                variant="neutral"
+                size="sm"
+                onClick={handleCopy}
+                disabled={veto.actions.length === 0}
+              >
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            )}
+            {onReset && veto.status !== "waiting" && (
+              <Button variant="destructive" size="sm" onClick={onReset}>
+                <ArrowCounterClockwise className="size-4" />
+                Reset
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="font-mono text-sm">
@@ -63,22 +95,14 @@ export function VetoConsole({ veto, className = "", onReset }: Props) {
           <div className="space-y-1">
             {veto.actions.map((action, idx) => {
               const hasTimestamp = "timestamp" in action;
-              // Determine the argument based on action type (capitalize Attack/Defense)
-              const argument =
-                action.type === "side_select"
-                  ? action.side === "attack"
-                    ? "Attack"
-                    : "Defense"
-                  : action.map;
-              // Get team display tag (or empty for decider)
-              const teamDisplay =
-                action.team === "none" ? "" : getTeamTag(action.team);
+              const argument = getActionArgument(action);
+              const teamDisplay = action.team === "none" ? "" : getTeamTag(action.team);
 
               return (
                 <div key={idx} className="flex items-center gap-3 text-sm">
                   {hasTimestamp && (
                     <span className="text-muted-foreground/60 w-20">
-                      {formatTime((action as VetoActionFull).timestamp)}
+                      {formatTime(action.timestamp)}
                     </span>
                   )}
                   <span className="flex items-center gap-3">
@@ -93,15 +117,9 @@ export function VetoConsole({ veto, className = "", onReset }: Props) {
                         action.type === "pick" && "text-constructive"
                       )}
                     >
-                      {action.type === "side_select"
-                        ? "SELECT"
-                        : action.type.toUpperCase()}
+                      {getActionLabel(action)}
                     </span>
-                    <span
-                      className="text-foreground"
-                    >
-                      {argument}
-                    </span>
+                    <span className="text-foreground">{argument}</span>
                   </span>
                 </div>
               );
