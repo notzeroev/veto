@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -36,11 +37,20 @@ type Props = {
   onMapClick?: (map: string) => void;
 };
 
+const HOLD_DURATION_MS = 800;
+
 export function VetoDisplay({
   veto,
   userTeam,
   onMapClick,
 }: Props) {
+  const [holdingMap, setHoldingMap] = useState<string | null>(null);
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [submittingMap, setSubmittingMap] = useState<string | null>(null);
+  const holdStartedAtRef = useRef<number | null>(null);
+  const holdFrameRef = useRef<number | null>(null);
+  const completedHoldRef = useRef(false);
+
   // Get used maps (ban, pick, decider - not side_select)
   const usedMaps = veto.actions
     .filter((a) => a.type === "ban" || a.type === "pick" || a.type === "decider")
@@ -76,6 +86,77 @@ export function VetoDisplay({
     );
   };
 
+  const isActionablePhase =
+    veto.currentPhase === "ban" || veto.currentPhase === "pick";
+
+  const cancelHold = () => {
+    if (holdFrameRef.current !== null) {
+      cancelAnimationFrame(holdFrameRef.current);
+      holdFrameRef.current = null;
+    }
+
+    holdStartedAtRef.current = null;
+    completedHoldRef.current = false;
+    setHoldingMap(null);
+    setHoldProgress(0);
+  };
+
+  useEffect(() => {
+    return () => cancelHold();
+  }, []);
+
+  useEffect(() => {
+    if (submittingMap && usedMaps.includes(submittingMap)) {
+      setSubmittingMap(null);
+      cancelHold();
+    }
+  }, [submittingMap, usedMaps]);
+
+  useEffect(() => {
+    if (!canAct || !isActionablePhase) {
+      cancelHold();
+      setSubmittingMap(null);
+    }
+  }, [canAct, isActionablePhase]);
+
+  const startHold = (map: string) => {
+    if (submittingMap || holdingMap === map) {
+      return;
+    }
+
+    cancelHold();
+    setHoldingMap(map);
+    setHoldProgress(0);
+    holdStartedAtRef.current = performance.now();
+    completedHoldRef.current = false;
+
+    const tick = (now: number) => {
+      if (holdStartedAtRef.current === null) {
+        return;
+      }
+
+      const elapsed = now - holdStartedAtRef.current;
+      const progress = Math.min(elapsed / HOLD_DURATION_MS, 1);
+
+      setHoldProgress(progress);
+
+      if (progress >= 1) {
+        completedHoldRef.current = true;
+        holdFrameRef.current = null;
+        setSubmittingMap(map);
+        Promise.resolve(onMapClick?.(map)).catch(() => {
+          setSubmittingMap(null);
+          cancelHold();
+        });
+        return;
+      }
+
+      holdFrameRef.current = requestAnimationFrame(tick);
+    };
+
+    holdFrameRef.current = requestAnimationFrame(tick);
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {veto.mapPool.map((map) => {
@@ -89,15 +170,33 @@ export function VetoDisplay({
         const canClick =
           canAct &&
           isAvailable &&
-          (veto.currentPhase === "ban" || veto.currentPhase === "pick");
+          isActionablePhase &&
+          !submittingMap;
+        const isHolding = holdingMap === map;
+        const holdOverlayTone =
+          veto.currentPhase === "ban" ? "bg-destructive/20" : "bg-constructive/20";
+        const holdOverlayProgress = isHolding ? holdProgress : submittingMap === map ? 1 : 0;
+        const holdOverlayTranslate = -100 + holdOverlayProgress * 100;
 
         return (
           <button
             key={map}
-            onClick={() => canClick && onMapClick?.(map)}
+            type="button"
+            onPointerDown={() => canClick && startHold(map)}
+            onPointerUp={() => {
+              if (!completedHoldRef.current) {
+                cancelHold();
+              }
+            }}
+            onPointerLeave={() => {
+              if (isHolding) {
+                cancelHold();
+              }
+            }}
+            onPointerCancel={cancelHold}
             disabled={!canClick}
             className={cn(
-              "group relative flex flex-col justify-between p-4 border transition-all text-left h-25 overflow-hidden",
+              "group relative flex h-25 select-none flex-col justify-between overflow-hidden border p-4 text-left transition-all touch-none",
               isBanned && "bg-destructive/20 border-destructive",
               isPicked && "bg-constructive/20 border-constructive",
               isDecider && "bg-neutral/20 border-neutral",
@@ -105,9 +204,26 @@ export function VetoDisplay({
                 "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/30 cursor-pointer",
               !isBanned && !isPicked && !isDecider && (!isAvailable || !canClick) &&
                 "bg-card border-border",
+              isHolding && "scale-[0.99]",
               !canClick && "cursor-default"
             )}
           >
+            {/* Hold progress fill */}
+            {!action && (canClick || submittingMap === map) && (
+              <div
+                className={cn(
+                  "pointer-events-none absolute inset-y-0 left-0 w-[130%] transition-[transform,opacity] duration-75 ease-out",
+                  holdOverlayTone
+                )}
+                style={{
+                  opacity: holdOverlayProgress > 0 ? 1 : 0,
+                  transform: `translateX(${holdOverlayTranslate}%)`,
+                  maskImage: "linear-gradient(to right, black 0%, black 78%, transparent 100%)",
+                  WebkitMaskImage: "linear-gradient(to right, black 0%, black 78%, transparent 100%)",
+                }}
+              />
+            )}
+
             {/* Background image layer */}
             <div
               className={cn(
