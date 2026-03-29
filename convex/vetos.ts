@@ -140,12 +140,12 @@ export const create = mutation({
       throw new Error("Must be logged in to create a veto");
     }
 
-    // Validate team names (5-15 characters)
-    if (args.teamAName.length < 5 || args.teamAName.length > 15) {
-      throw new Error("Team A name must be 5-15 characters");
+    // Validate team names (1-20 characters)
+    if (args.teamAName.length < 1 || args.teamAName.length > 20) {
+      throw new Error("Team A name must be 1-20 characters");
     }
-    if (args.teamBName.length < 5 || args.teamBName.length > 15) {
-      throw new Error("Team B name must be 5-15 characters");
+    if (args.teamBName.length < 1 || args.teamBName.length > 20) {
+      throw new Error("Team B name must be 1-20 characters");
     }
 
     // Validate team tags (1-5 characters)
@@ -156,7 +156,9 @@ export const create = mutation({
       throw new Error("Team B tag must be 1-5 characters");
     }
 
-    const mapPool = args.mapPool ?? DEFAULT_MAP_POOLS[args.game];
+    const mapPool = args.mapPool
+      ? [...args.mapPool]
+      : [...DEFAULT_MAP_POOLS[args.game]];
 
     if (mapPool.length < 7) {
       throw new Error("Map pool must have at least 7 maps");
@@ -683,7 +685,7 @@ export const backfillGame = mutation({
     const vetos = await ctx.db.query("vetos").collect();
     let updated = 0;
     for (const veto of vetos) {
-      if (!(veto as any).game) {
+      if (!("game" in veto) || !veto.game) {
         await ctx.db.patch(veto._id, { game: "valorant" as const });
         updated++;
       }

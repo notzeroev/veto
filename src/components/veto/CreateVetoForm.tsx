@@ -3,18 +3,31 @@
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { PlusIcon } from "@phosphor-icons/react";
+import { PlusIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { MAP_POOLS, type Game } from "@/lib/mapPools";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+type FieldName =
+  | "name"
+  | "teamAName"
+  | "teamATag"
+  | "teamBName"
+  | "teamBTag"
+  | "selectedMaps"
+  | "form";
+
+type FieldErrors = Partial<Record<FieldName, string>>;
 
 export function CreateVetoForm() {
   const router = useRouter();
@@ -31,46 +44,151 @@ export function CreateVetoForm() {
     MAP_POOLS[game].active,
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const mapPool = MAP_POOLS[game];
 
-  const toggleMap = (map: string) => {
-    setSelectedMaps((prev) => {
-      if (prev.includes(map)) {
-        return prev.filter((m) => m !== map);
-      }
-      // Don't allow selecting more than 7 maps
-      if (prev.length >= 7) {
+  const validateField = (
+    field: Exclude<FieldName, "form">,
+    value: string | string[],
+  ): string | undefined => {
+    switch (field) {
+      case "name":
+        return typeof value === "string" && value.trim().length > 0
+          ? undefined
+          : "Add a match name.";
+      case "teamAName":
+        return typeof value === "string" &&
+          value.trim().length >= 1 &&
+          value.trim().length <= 20
+          ? undefined
+          : "Name needs to be 1-20 characters.";
+      case "teamATag":
+        return typeof value === "string" &&
+          value.trim().length >= 1 &&
+          value.trim().length <= 5
+          ? undefined
+          : "Tag needs to be 1-5 characters.";
+      case "teamBName":
+        return typeof value === "string" &&
+          value.trim().length >= 1 &&
+          value.trim().length <= 20
+          ? undefined
+          : "Name needs to be 1-20 characters.";
+      case "teamBTag":
+        return typeof value === "string" &&
+          value.trim().length >= 1 &&
+          value.trim().length <= 5
+          ? undefined
+          : "Tag needs to be 1-5 characters.";
+      case "selectedMaps":
+        return Array.isArray(value) && value.length === 7
+          ? undefined
+          : "Select exactly 7 maps.";
+    }
+  };
+
+  const updateFieldError = (
+    field: Exclude<FieldName, "form">,
+    value: string | string[],
+  ) => {
+    setErrors((prev) => {
+      if (!prev[field]) {
         return prev;
       }
-      return [...prev, map];
+
+      const next = { ...prev };
+      const message = validateField(field, value);
+      if (message) {
+        next[field] = message;
+      } else {
+        delete next[field];
+      }
+      return next;
     });
   };
 
+  const setStringField =
+    (
+      field: Exclude<FieldName, "selectedMaps" | "form">,
+      setter: (value: string) => void,
+    ) =>
+    (value: string) => {
+      setter(value);
+      updateFieldError(field, value);
+    };
+
+  const toggleMap = (map: string) => {
+    const nextSelectedMaps = selectedMaps.includes(map)
+      ? selectedMaps.filter((selectedMap) => selectedMap !== map)
+      : selectedMaps.length >= 7
+        ? selectedMaps
+        : [...selectedMaps, map];
+
+    setSelectedMaps(nextSelectedMaps);
+    updateFieldError("selectedMaps", nextSelectedMaps);
+  };
+
+  const getInputProps = (
+    field: Exclude<FieldName, "selectedMaps" | "form">,
+  ): Pick<ComponentProps<typeof Input>, "aria-invalid"> => ({
+    "aria-invalid": errors[field] ? true : undefined,
+  });
+
+  const renderLabel = (
+    label: ReactNode,
+    field: Exclude<FieldName, "selectedMaps" | "form">,
+  ) => (
+    <div className="flex items-center gap-2">
+      <Label>{label}</Label>
+      {errors[field] && (
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <button
+                type="button"
+                aria-label={errors[field]}
+                className="inline-flex text-destructive"
+              />
+            }
+          >
+            <WarningCircleIcon className="size-4" weight="fill" />
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            align="start"
+            sideOffset={6}
+            className="border border-destructive/30 bg-destructive px-3 py-2 text-primary-foreground"
+          >
+            {errors[field]}
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    const trimmedName = name.trim();
+    const trimmedTeamAName = teamAName.trim();
+    const trimmedTeamATag = teamATag.trim();
+    const trimmedTeamBName = teamBName.trim();
+    const trimmedTeamBTag = teamBTag.trim();
 
-    // Client-side validation
-    if (teamAName.length < 5 || teamAName.length > 15) {
-      setError("Team A name must be 5-15 characters");
-      return;
-    }
-    if (teamBName.length < 5 || teamBName.length > 15) {
-      setError("Team B name must be 5-15 characters");
-      return;
-    }
-    if (teamATag.length < 1 || teamATag.length > 5) {
-      setError("Team A tag must be 1-5 characters");
-      return;
-    }
-    if (teamBTag.length < 1 || teamBTag.length > 5) {
-      setError("Team B tag must be 1-5 characters");
-      return;
-    }
-    if (selectedMaps.length !== 7) {
-      setError("Please select exactly 7 maps");
+    const nextErrors: FieldErrors = {
+      name: validateField("name", trimmedName),
+      teamAName: validateField("teamAName", trimmedTeamAName),
+      teamATag: validateField("teamATag", trimmedTeamATag),
+      teamBName: validateField("teamBName", trimmedTeamBName),
+      teamBTag: validateField("teamBTag", trimmedTeamBTag),
+      selectedMaps: validateField("selectedMaps", selectedMaps),
+    };
+    const filteredErrors = Object.fromEntries(
+      Object.entries(nextErrors).filter(([, value]) => Boolean(value)),
+    ) as FieldErrors;
+
+    setErrors(filteredErrors);
+    if (Object.keys(filteredErrors).length > 0) {
       return;
     }
 
@@ -78,33 +196,40 @@ export function CreateVetoForm() {
     try {
       const vetoId = await createVeto({
         game,
-        name,
+        name: trimmedName,
         format,
-        teamAName,
-        teamATag,
-        teamBName,
-        teamBTag,
+        teamAName: trimmedTeamAName,
+        teamATag: trimmedTeamATag,
+        teamBName: trimmedTeamBName,
+        teamBTag: trimmedTeamBTag,
         mapPool: selectedMaps,
       });
       router.push(`/admin/veto/${vetoId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create veto");
+      setErrors({
+        form: err instanceof Error ? err.message : "Failed to create veto",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
+    <TooltipProvider>
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="space-y-6 max-w-2xl mx-auto"
+      >
       <div className="space-y-2">
-        <Label>Match Name</Label>
+        {renderLabel("Match Name", "name")}
         <Input
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
+          onChange={(e) => setStringField("name", setName)(e.target.value)}
           placeholder="e.g. Upper Finals"
           className="h-10"
+          {...getInputProps("name")}
         />
       </div>
 
@@ -164,50 +289,64 @@ export function CreateVetoForm() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="mb-2 block">Team A</Label>
+          <div className="mb-2">{renderLabel("Team A", "teamAName")}</div>
           <Input
             type="text"
             value={teamAName}
-            onChange={(e) => setTeamAName(e.target.value)}
-            required
-            placeholder="Name (5-15)"
+            onChange={(e) =>
+              setStringField("teamAName", setTeamAName)(e.target.value)
+            }
+            placeholder="Name (1-20)"
             className="h-10"
-            minLength={5}
-            maxLength={15}
+            maxLength={20}
+            {...getInputProps("teamAName")}
           />
-          <Input
-            type="text"
-            value={teamATag}
-            onChange={(e) => setTeamATag(e.target.value.toUpperCase())}
-            required
-            placeholder="TAG (1-5)"
-            className="h-10 uppercase mt-2"
-            minLength={1}
-            maxLength={5}
-          />
+          <div className="mt-2">
+            <div className="mb-2">{renderLabel("Tag", "teamATag")}</div>
+            <Input
+              type="text"
+              value={teamATag}
+              onChange={(e) =>
+                setStringField("teamATag", setTeamATag)(
+                  e.target.value.toUpperCase(),
+                )
+              }
+              placeholder="TAG (1-5)"
+              className="h-10 uppercase"
+              maxLength={5}
+              {...getInputProps("teamATag")}
+            />
+          </div>
         </div>
         <div>
-          <Label className="mb-2 block">Team B</Label>
+          <div className="mb-2">{renderLabel("Team B", "teamBName")}</div>
           <Input
             type="text"
             value={teamBName}
-            onChange={(e) => setTeamBName(e.target.value)}
-            required
-            placeholder="Name (5-15)"
+            onChange={(e) =>
+              setStringField("teamBName", setTeamBName)(e.target.value)
+            }
+            placeholder="Name (1-20)"
             className="h-10"
-            minLength={5}
-            maxLength={15}
+            maxLength={20}
+            {...getInputProps("teamBName")}
           />
-          <Input
-            type="text"
-            value={teamBTag}
-            onChange={(e) => setTeamBTag(e.target.value.toUpperCase())}
-            required
-            placeholder="TAG (1-5)"
-            className="h-10 uppercase mt-2"
-            minLength={1}
-            maxLength={5}
-          />
+          <div className="mt-2">
+            <div className="mb-2">{renderLabel("Tag", "teamBTag")}</div>
+            <Input
+              type="text"
+              value={teamBTag}
+              onChange={(e) =>
+                setStringField("teamBTag", setTeamBTag)(
+                  e.target.value.toUpperCase(),
+                )
+              }
+              placeholder="TAG (1-5)"
+              className="h-10 uppercase"
+              maxLength={5}
+              {...getInputProps("teamBTag")}
+            />
+          </div>
         </div>
       </div>
 
@@ -225,6 +364,8 @@ export function CreateVetoForm() {
                 onClick={() => toggleMap(map)}
                 className={cn(
                   "h-9 text-sm",
+                  errors.selectedMaps &&
+                    "border-destructive text-destructive hover:border-destructive",
                   isSelected
                     ? "bg-neutral/20! border-neutral!"
                     : "hover:bg-muted! dark:hover:bg-input/30! hover:border-neutral!",
@@ -235,11 +376,14 @@ export function CreateVetoForm() {
             );
           })}
         </div>
+        {errors.selectedMaps && (
+          <p className="text-destructive text-xs">{errors.selectedMaps}</p>
+        )}
       </div>
 
-      {error && (
+      {errors.form && (
         <div className="text-destructive text-sm bg-destructive/10 px-4 py-2 border border-destructive/20">
-          {error}
+          {errors.form}
         </div>
       )}
 
@@ -252,6 +396,7 @@ export function CreateVetoForm() {
         <PlusIcon className="size-4" />
         {loading ? "Creating..." : "Create Veto"}
       </Button>
-    </form>
+      </form>
+    </TooltipProvider>
   );
 }
