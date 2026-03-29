@@ -20,7 +20,6 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
   const resetVeto = useMutation(api.vetos.resetVeto);
 
   const [copiedTeam, setCopiedTeam] = useState<"teamA" | "teamB" | null>(null);
-  const [copiedToken, setCopiedToken] = useState<"teamA" | "teamB" | null>(null);
 
   if (veto === undefined) {
     return (
@@ -47,13 +46,6 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
     await navigator.clipboard.writeText(link);
     setCopiedTeam(team);
     setTimeout(() => setCopiedTeam(null), 2000);
-  };
-
-  const copyToken = async (team: "teamA" | "teamB") => {
-    const token = team === "teamA" ? veto.teamA.token : veto.teamB.token;
-    await navigator.clipboard.writeText(token);
-    setCopiedToken(team);
-    setTimeout(() => setCopiedToken(null), 2000);
   };
 
   const handleStart = async (firstPick: "teamA" | "teamB") => {
@@ -91,10 +83,10 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                     {veto.teamA.tag}
                   </span>
                   <code
-                    onClick={() => copyToken("teamA")}
+                    onClick={() => copyLink("teamA")}
                     className="flex-1 min-w-0 text-sm text-muted-foreground font-mono bg-muted px-3 py-2 truncate cursor-pointer hover:bg-muted/80"
                   >
-                    {copiedToken === "teamA" ? "Copied!" : veto.teamA.token}
+                    {copiedTeam === "teamA" ? "Copied!" : veto.teamA.token}
                   </code>
                   <Button
                     variant="neutral"
@@ -116,10 +108,10 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
                     {veto.teamB.tag}
                   </span>
                   <code
-                    onClick={() => copyToken("teamB")}
+                    onClick={() => copyLink("teamB")}
                     className="flex-1 min-w-0 text-sm text-muted-foreground font-mono bg-muted px-3 py-2 truncate cursor-pointer hover:bg-muted/80"
                   >
-                    {copiedToken === "teamB" ? "Copied!" : veto.teamB.token}
+                    {copiedTeam === "teamB" ? "Copied!" : veto.teamB.token}
                   </code>
                   <Button
                     variant="neutral"
