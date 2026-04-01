@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Doc } from "../../../convex/_generated/dataModel";
+import type { SanitizedVeto } from "./VetoDisplay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,12 +11,13 @@ import { ArrowCounterClockwise, Check, Copy } from "@phosphor-icons/react";
 type VetoAction = Doc<"vetos">["actions"][number];
 
 type Props = {
-  veto: Doc<"vetos">;
+  veto: Doc<"vetos"> | SanitizedVeto;
   className?: string;
+  isAdmin?: boolean;
   onReset?: () => void;
 };
 
-export function VetoConsole({ veto, className = "", onReset }: Props) {
+export function VetoConsole({ veto, className = "", isAdmin = false, onReset }: Props) {
   const [copied, setCopied] = useState(false);
   const teamATag = veto.teamA.tag;
   const teamBTag = veto.teamB.tag;
@@ -79,7 +81,7 @@ export function VetoConsole({ veto, className = "", onReset }: Props) {
                 {copied ? "Copied" : "Copy"}
               </Button>
             )}
-            {onReset && veto.status !== "waiting" && (
+            {isAdmin && onReset && veto.status !== "waiting" && (
               <Button variant="destructive" size="sm" onClick={onReset}>
                 <ArrowCounterClockwise className="size-4" />
                 Reset

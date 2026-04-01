@@ -125,7 +125,7 @@ function VetoAdminContent({ vetoId }: { vetoId: Id<"vetos"> }) {
             </Card>
 
             {/* Console */}
-            <VetoConsole veto={veto} onReset={handleReset} />
+            <VetoConsole veto={veto} isAdmin onReset={handleReset} />
           </div>
 
           {/* Right Column: Banner + Veto Display */}

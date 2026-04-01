@@ -5,10 +5,12 @@ import { api } from "../../../../convex/_generated/api";
 import { VetoDisplay } from "@/components/veto/VetoDisplay";
 import { VetoHeader } from "@/components/veto/VetoHeader";
 import { VetoBanner } from "@/components/veto/VetoBanner";
+import { VetoConsole } from "@/components/veto/VetoConsole";
 import { CaptainHeader } from "@/components/layout/CaptainHeader";
 import { Header } from "@/components/layout/Header";
 import { Container } from "@/components/layout/Container";
-import { useEffect, use } from "react";
+import { CaretDown } from "@phosphor-icons/react";
+import { useEffect, useState, use } from "react";
 
 export default function CaptainVetoPage({
   params,
@@ -84,6 +86,8 @@ export default function CaptainVetoPage({
   // Get the user's team tag
   const myTeamTag = team === "teamA" ? veto.teamA.tag : veto.teamB.tag;
 
+  const [consoleOpen, setConsoleOpen] = useState(false);
+
   return (
     <>
       <CaptainHeader teamTag={myTeamTag} />
@@ -104,6 +108,21 @@ export default function CaptainVetoPage({
           userTeam={team}
           onMapClick={handleMapClick}
         />
+        {veto.actions.length > 0 && (
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => setConsoleOpen(!consoleOpen)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-3"
+            >
+              <CaretDown
+                className={`size-3 transition-transform ${consoleOpen ? "rotate-0" : "-rotate-90"}`}
+              />
+              Console
+            </button>
+            {consoleOpen && <VetoConsole veto={veto} />}
+          </div>
+        )}
       </Container>
     </>
   );
