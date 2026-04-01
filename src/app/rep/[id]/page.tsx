@@ -109,7 +109,7 @@ export default function CaptainVetoPage({
         {veto.actions.length > 0 && (
           <Accordion className="mt-6 sm:w-[calc(50%-0.375rem)]">
             <AccordionItem>
-              <AccordionTrigger>Console</AccordionTrigger>
+              <AccordionTrigger className="hover:no-underline">Show Console</AccordionTrigger>
               <AccordionContent>
                 <VetoConsole veto={veto} />
               </AccordionContent>
