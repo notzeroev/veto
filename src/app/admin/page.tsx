@@ -68,6 +68,21 @@ export default function AdminDashboard() {
                     <div className="text-xs text-muted-foreground mt-0.5">
                       {veto.name} - {veto.format.toUpperCase()}
                     </div>
+                    {veto.status === "completed" && (() => {
+                      const pickedMaps = veto.actions
+                        .filter((a) => a.type === "pick" || a.type === "decider")
+                        .map((a) => a.map);
+                      return pickedMaps.length > 0 ? (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                          {pickedMaps.map((map, i) => (
+                            <span key={map} className="flex items-center gap-1.5">
+                              {i > 0 && <span className="text-muted-foreground/50">›</span>}
+                              <span>{map}</span>
+                            </span>
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
                   </Link>
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-muted-foreground">

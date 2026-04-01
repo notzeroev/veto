@@ -28,10 +28,19 @@ export function VetoBanner({
 
   const currentTeamTag = veto.currentTurn === "teamA" ? teamATag : teamBTag;
 
-  // Get picked maps for completed summary
-  const pickedMaps = veto.actions
+  // Get picked maps with side selection info for completed summary
+  const pickedMapsWithSides = veto.actions
     .filter((a) => a.type === "pick" || a.type === "decider")
-    .map((a) => a.map);
+    .map((a) => {
+      const sideSelect = veto.actions.find(
+        (s) => s.type === "side_select" && s.map === a.map
+      );
+      return {
+        map: a.map,
+        sideTeam: sideSelect?.team,
+        side: sideSelect?.side,
+      };
+    });
 
   // Determine banner state (priority order)
   const getState = () => {
@@ -80,8 +89,34 @@ export function VetoBanner({
       {state === "completed" && (
         <>
           <div className="text-primary font-semibold">Veto Complete</div>
-          <div className="text-sm text-muted-foreground mt-1">
-            Maps to play: {pickedMaps.join(", ")}
+          <div
+            className="group/scroll mt-2 max-w-full overflow-x-hidden hover:overflow-x-auto"
+          >
+            <div className="flex items-center gap-2 px-4 w-max mx-auto">
+              {pickedMapsWithSides.map((entry, i) => {
+                const sideTag =
+                  entry.sideTeam === "teamA"
+                    ? teamATag
+                    : entry.sideTeam === "teamB"
+                      ? teamBTag
+                      : null;
+                return (
+                  <span key={entry.map} className="flex items-center gap-2">
+                    {i > 0 && (
+                      <span className="text-muted-foreground/40">›</span>
+                    )}
+                    <span className="flex flex-col items-center">
+                      <span className="text-sm font-medium">{entry.map}</span>
+                      {entry.side && sideTag && (
+                        <span className="text-[10px] text-muted-foreground leading-tight">
+                          {sideTag} {entry.side === "attack" ? "ATK" : "DEF"}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
           </div>
         </>
       )}
