@@ -87,38 +87,35 @@ export function VetoBanner({
     >
       {/* Completed */}
       {state === "completed" && (
-        <>
-          <div className="text-primary font-semibold">Veto Complete</div>
-          <div
-            className="group/scroll mt-2 max-w-full overflow-x-hidden hover:overflow-x-auto"
-          >
-            <div className="flex items-center gap-2 px-4 w-max mx-auto">
-              {pickedMapsWithSides.map((entry, i) => {
-                const sideTag =
-                  entry.sideTeam === "teamA"
-                    ? teamATag
-                    : entry.sideTeam === "teamB"
-                      ? teamBTag
-                      : null;
-                return (
-                  <span key={entry.map} className="flex items-center gap-2">
-                    {i > 0 && (
-                      <span className="text-muted-foreground/40">›</span>
+        <div
+          className="max-w-full overflow-x-hidden hover:overflow-x-auto"
+        >
+          <div className="flex items-center gap-3 px-4 w-max mx-auto">
+            {pickedMapsWithSides.map((entry, i) => {
+              const sideTag =
+                entry.sideTeam === "teamA"
+                  ? teamATag
+                  : entry.sideTeam === "teamB"
+                    ? teamBTag
+                    : null;
+              return (
+                <span key={entry.map} className="flex items-center gap-3">
+                  {i > 0 && (
+                    <span className="text-muted-foreground/40 text-lg">›</span>
+                  )}
+                  <span className="flex flex-col items-center">
+                    <span className="font-medium">{entry.map}</span>
+                    {entry.side && sideTag && (
+                      <span className="text-xs text-muted-foreground leading-tight">
+                        {sideTag} {entry.side === "attack" ? "ATK" : "DEF"}
+                      </span>
                     )}
-                    <span className="flex flex-col items-center">
-                      <span className="text-sm font-medium">{entry.map}</span>
-                      {entry.side && sideTag && (
-                        <span className="text-[10px] text-muted-foreground leading-tight">
-                          {sideTag} {entry.side === "attack" ? "ATK" : "DEF"}
-                        </span>
-                      )}
-                    </span>
                   </span>
-                );
-              })}
-            </div>
+                </span>
+              );
+            })}
           </div>
-        </>
+        </div>
       )}
 
       {/* Side Selection - Active (your turn) */}
