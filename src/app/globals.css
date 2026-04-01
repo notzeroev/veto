@@ -130,6 +130,10 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
