@@ -75,14 +75,17 @@ export default function AdminDashboard() {
                         .filter((a) => a.type === "pick" || a.type === "decider")
                         .map((a) => a.map);
                       return maps.length > 0 ? (
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          {maps.map((map, i) => (
-                            <span key={map} className="flex items-center gap-1.5">
-                              {i > 0 && <span className="text-muted-foreground/50">›</span>}
-                              <span>{map}</span>
-                            </span>
-                          ))}
-                        </span>
+                        <>
+                          <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
+                            {maps.map((map, i) => (
+                              <span key={map} className="flex items-center gap-1.5">
+                                {i > 0 && <span className="text-muted-foreground/50">›</span>}
+                                <span>{map}</span>
+                              </span>
+                            ))}
+                          </span>
+                          <span className="sm:hidden text-xs text-muted-foreground">completed</span>
+                        </>
                       ) : (
                         <span className="text-xs text-muted-foreground">completed</span>
                       );
