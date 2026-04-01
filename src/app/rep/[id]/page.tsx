@@ -107,7 +107,7 @@ export default function CaptainVetoPage({
           onMapClick={handleMapClick}
         />
         {veto.actions.length > 0 && (
-          <Accordion className="mt-6">
+          <Accordion className="mt-6 sm:w-[calc(50%-0.375rem)]">
             <AccordionItem>
               <AccordionTrigger>Console</AccordionTrigger>
               <AccordionContent>
