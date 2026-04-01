@@ -38,11 +38,11 @@ export function VetoConsole({ veto, className = "", isAdmin = false, onReset }: 
     });
   };
 
-  const getActionLabel = (action: VetoAction) => {
+  const getActionLabel = (action: VetoAction | SanitizedVeto["actions"][number]) => {
     return action.type === "side_select" ? "SELECT" : action.type.toUpperCase();
   };
 
-  const getActionArgument = (action: VetoAction) => {
+  const getActionArgument = (action: VetoAction | SanitizedVeto["actions"][number]) => {
     if (action.type !== "side_select") return action.map;
     return action.side === "attack" ? "Attack" : "Defense";
   };
