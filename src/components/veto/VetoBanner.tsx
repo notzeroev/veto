@@ -88,7 +88,7 @@ export function VetoBanner({
       {/* Completed */}
       {state === "completed" && (
         <div
-          className="w-full overflow-x-auto"
+          className="w-full overflow-x-auto scrollbar-none"
         >
           <div className="flex items-center gap-3 px-4 w-max mx-auto">
             {pickedMapsWithSides.map((entry, i) => {
